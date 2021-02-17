@@ -5,3 +5,4 @@
 3. composer install
 4. rename db in the .env.example file
 5. delete .example
+...
