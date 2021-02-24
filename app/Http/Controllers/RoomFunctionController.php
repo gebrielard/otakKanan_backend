@@ -58,8 +58,10 @@ class RoomFunctionController extends Controller
      */
     public function show($id)
     {
-        $roomFunction = RoomFunction::find($id);
+        $roomFunction = DB::table('room_functions')
+        ->where('room_id', 'like', $id)->get();
         
+
         if (empty($roomFunction)) {
             return response()->json([ 'message' => "Data Not Found"]); 
         } else {

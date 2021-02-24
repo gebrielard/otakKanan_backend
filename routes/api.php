@@ -6,21 +6,19 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\RoomFunctionController;
 use App\Http\Controllers\RoomTypeController;
 use App\Http\Controllers\FacilityController;
+use App\Http\Controllers\UserController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+
+// User Controller
+Route::group(['middleware' => 'jwt.verify'], function(){
+    Route::post('logout', [UserController::class, 'logout']);
+    Route::get('me', [UserController::class, 'getAuthenticatedUser']);
+    Route::post('/editProfile', [UserController::class, 'update']);
 });
+
+Route::post('register', [UserController::class, 'register']);
+Route::post('login', [UserController::class, 'login']);
 
 // Room Controller
 Route::get('/room', [RoomController::class, 'index']);

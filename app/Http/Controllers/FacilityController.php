@@ -49,7 +49,7 @@ class FacilityController extends Controller
             'status' => $request->get('status')
         ]);
         
-        return response()->json($roomFunction);
+        return response()->json(compact('facility'));
     }
 
     /**
@@ -65,7 +65,7 @@ class FacilityController extends Controller
         if (empty($facility)) {
             return response()->json([ 'message' => "Data Not Found"]); 
         } else {
-            return response()->json(compact('roomFunction'));
+            return response()->json(compact('facility'));
         }
     }
 
