@@ -8,24 +8,27 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements JWTSubject
+class Users extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
-    
+    protected $table = "users";
+    public $timestamps = true;
+
     protected $fillable = [
         'name',
         'email',
         'password',
+        'image',
+        'role',
+        'created_at',
     ];
 
-    
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
@@ -39,4 +42,8 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
+    // public function listLocations()
+    // {
+    // 	return $this->belongsToMany('App\Models\ListLocations', 'user_list_locations');
+    // }
 }
