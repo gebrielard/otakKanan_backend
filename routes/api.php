@@ -20,6 +20,14 @@ Route::group(['middleware' => 'jwt.verify'], function(){
 Route::post('register', [UserController::class, 'register']);
 Route::post('login', [UserController::class, 'login']);
 
+//Galery Controller
+Route::group(['prefix' => 'gallery',  'middleware' => ['jwt.verify']], function() {
+    Route::get('/read', [GalleryController::class, 'index']);
+    Route::post('/create', [GalleryController::class, 'store']);
+    Route::post('/update/{id}', [GalleryController::class, 'update']);
+    Route::delete('/delete/{id}', [GalleryController::class, 'destroy']);
+});
+
 // Room Controller
 Route::get('/room', [RoomController::class, 'index']);
 Route::get('/room/{id}', [RoomController::class, 'show']);
