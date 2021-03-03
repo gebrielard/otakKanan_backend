@@ -7,11 +7,7 @@ use Illuminate\Http\Request;
 
 class RoomFunctionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    
     public function index()
     {
         $roomFunctions = RoomFunction::all();
@@ -19,22 +15,7 @@ class RoomFunctionController extends Controller
         return response()->json(compact('roomFunctions'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    
     public function store(Request $request)
     {
         $this->validate($request,[
@@ -50,16 +31,13 @@ class RoomFunctionController extends Controller
         return response()->json($roomFunction);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\RoomFunction  $roomFunction
-     * @return \Illuminate\Http\Response
-     */
+    
     public function show($id)
     {
-        $roomFunction = RoomFunction::find($id);
+        $roomFunction = DB::table('room_functions')
+        ->where('room_id', 'like', $id)->get();
         
+
         if (empty($roomFunction)) {
             return response()->json([ 'message' => "Data Not Found"]); 
         } else {
@@ -67,24 +45,7 @@ class RoomFunctionController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\RoomFunction  $roomFunction
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(RoomFunction $roomFunction)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\RoomFunction  $roomFunction
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         $roomFunction = RoomFunction::find($id);
@@ -104,12 +65,7 @@ class RoomFunctionController extends Controller
         return response()->json([ 'message' => "Data Successfully Updated"]);  
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\RoomFunction  $roomFunction
-     * @return \Illuminate\Http\Response
-     */
+    
     public function destroy($id)
     {
         $roomFunction = RoomFunction::find($id);
