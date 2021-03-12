@@ -7,7 +7,8 @@ use App\Http\Controllers\RoomFunctionController;
 use App\Http\Controllers\RoomTypeController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\UserController;
-
+use App\Http\Controllers\CommonRegulationsController;
+use App\Http\Controllers\FoodDrinksController;
 
 
 // User Controller
@@ -55,3 +56,19 @@ Route::get('/facility/{id}', [FacilityController::class, 'show']);
 Route::post('/facility/create', [FacilityController::class, 'store']);
 Route::put('/facility/{id}', [FacilityController::class, 'update']);
 Route::delete('/facility/{id}', [FacilityController::class, 'destroy']);
+
+//Common Regulation Controller
+Route::group(['prefix' => 'common-regulations',  'middleware' => ['jwt.verify']], function() {
+    Route::get('/read', [CommonRegulationsController::class, 'index']);
+    Route::post('/create', [CommonRegulationsController::class, 'store']);
+    Route::post('/update/{id}', [CommonRegulationsController::class, 'update']);
+    Route::delete('/delete/{id}', [CommonRegulationsController::class, 'destroy']);
+});
+
+//foodDrinks Controller
+Route::group(['prefix' => 'food-drinks',  'middleware' => ['jwt.verify']], function() {
+    Route::get('/read', [CommonRegulationsController::class, 'index']);
+    Route::post('/create', [CommonRegulationsController::class, 'store']);
+    Route::post('/update/{id}', [CommonRegulationsController::class, 'update']);
+    Route::delete('/delete/{id}', [CommonRegulationsController::class, 'destroy']);
+});
