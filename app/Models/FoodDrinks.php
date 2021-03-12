@@ -5,17 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Room extends Model
+class FoodDrinks extends Model
 {
     use HasFactory;
-
     protected $primaryKey = 'room_id';
-    protected $table = 'rooms';
+    protected $table = 'food_drinks';
     protected $fillable = [
+        'room_id',
         'user_id',
-        'name',
-        'code',
-        'description'
+        'filename',
+        'description',
+        'price'
     ];
     public $timestamps = true;
 }

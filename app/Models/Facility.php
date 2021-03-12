@@ -13,6 +13,7 @@ class Facility extends Model
     protected $table = 'facilities';
     protected $fillable = [
         'room_id',
+        'user_id',
         'name',
         'status'
     ];
