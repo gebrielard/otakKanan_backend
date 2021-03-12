@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRoomsTable extends Migration
+class CommonRegulasi extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,13 @@ class CreateRoomsTable extends Migration
      */
     public function up()
     {
-        Schema::create('rooms', function (Blueprint $table) {
-            $table->increments('room_id');
+        Schema::create('common_regulations', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('room_id');
             $table->integer('user_id');
-            $table->string('name');
-            $table->string('code');
-            $table->string('description');
+            $table->string('name', 255);
             $table->timestamps();
+            
         });
     }
 
@@ -30,6 +30,6 @@ class CreateRoomsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rooms');
+        //
     }
 }

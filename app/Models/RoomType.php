@@ -12,6 +12,7 @@ class RoomType extends Model
     protected $table = 'room_types';
     protected $fillable = [
         'room_id',
+        'user_id',
         'name',
         'capacity',
         'layout'

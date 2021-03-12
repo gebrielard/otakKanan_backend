@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Gallery extends Model
 {
     use HasFactory;
+    protected $primaryKey = 'room_id';
+    protected $table = 'galleries';
+    protected $fillable = [
+        'room_id',
+        'user_id',
+        'filename'
+    ];
+    public $timestamps = true;
 }

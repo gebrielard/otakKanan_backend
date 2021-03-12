@@ -13,6 +13,7 @@ class RoomFunction extends Model
     protected $table = 'room_functions';
     protected $fillable = [
         'room_id',
+        'user_id',
         'name'
     ];
     public $timestamps = true;
