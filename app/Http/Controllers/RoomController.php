@@ -29,8 +29,38 @@ class RoomController extends Controller
             'code' => $request->get('code'),
             'description' => $request->get('description')
         ]);
+
+        $roomType = RoomType::create([
+            'room_id' => $request->get('room_id'),
+            'name' => $request->get('name'),
+            'capacity' => $request->get('capacity'),
+            'layout' => $request->get('layout')
+        ]);
+
+        $roomFunction = RoomFunction::create([
+            'room_id' => $request->get('room_id'),
+            'name' => $request->get('name')
+        ]);
+
+        $gallery = Gallery::create([
+            'room_id' => $request->room_id,
+            'filename' => $filename,
+        ]);
+
+        $facility = Facility::create([
+            'room_id' => $request->get('room_id'),
+            'name' => $request->get('name'),
+            'status' => $request->get('status')
+        ]);
+
+        $common_regulations = CommonRegulations::create([
+            'room_id' => $id,
+            'user_id' => $user->id,
+            'name' => $request->get('name')
+        ]);
         
         return response()->json($room);
+
     }
 
     

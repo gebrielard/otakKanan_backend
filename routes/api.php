@@ -72,3 +72,19 @@ Route::group(['prefix' => 'food-drinks',  'middleware' => ['jwt.verify']], funct
     Route::post('/update/{id}', [CommonRegulationsController::class, 'update']);
     Route::delete('/delete/{id}', [CommonRegulationsController::class, 'destroy']);
 });
+
+//CategoryPrice Controller
+Route::group(['prefix' => 'category-price',  'middleware' => ['jwt.verify']], function() {
+    Route::get('/read', [CommonRegulationsController::class, 'index']);
+    Route::post('/create', [CommonRegulationsController::class, 'store']);
+    Route::post('/update/{id}', [CommonRegulationsController::class, 'update']);
+    Route::delete('/delete/{id}', [CommonRegulationsController::class, 'destroy']);
+});
+
+//OperationalTimes Controller
+Route::group(['prefix' => 'operational-times',  'middleware' => ['jwt.verify']], function() {
+    Route::get('/read', [CommonRegulationsController::class, 'index']);
+    Route::post('/create', [CommonRegulationsController::class, 'store']);
+    Route::post('/update/{id}', [CommonRegulationsController::class, 'update']);
+    Route::delete('/delete/{id}', [CommonRegulationsController::class, 'destroy']);
+});
