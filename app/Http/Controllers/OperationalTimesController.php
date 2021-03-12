@@ -3,26 +3,28 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\FoodDrinks;
+use App\Models\OperationalTimes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use JWTAuth;
 
-class FoodDrinksController extends Controller
+class OperationalTimesController extends Controller
 {
     public function index() {
 
-        $food_drinks = DB::table('$food_drinks')
+        $user = JWTAuth::parseToken()->authenticate();
+
+        $operational_times = DB::table('$operational_times')
         ->where('user_id', '=', $user->id)
         ->get();
 
-        if (empty($food_drinks)) {
+        if (empty($operational_times)) {
             $status = "data tidak tersedia";
         }
 
         $status = "data tersedia";
 
-        return response()->json(compact(['food_drinks', 'status']));
+        return response()->json(compact(['operational_times', 'status']));
 
     }
 
@@ -31,28 +33,26 @@ class FoodDrinksController extends Controller
         $user = JWTAuth::parseToken()->authenticate();
 
         $this->validate($request,[
-            'name' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
-            'price' => 'required'
+            'day' => 'required|string|max:255',
+            'open_times' => 'required|string|max:5|min:5',
+            'close_times' => 'required|string|max:5|min:5'
         ]);
 
         try {
 
-            $food_drinks = FoodDrinks::create([
+            $operational_times = OperationalTimes::create([
                 'room_id' => $id,
                 'user_id' => $user->id,
-                'name' => $request->get('name'),
-                'description' => $request->get('description'),
-                'price' => $request->get('price')
+                'day' => $request->get('name'),
+                'open_times' => $request->get('open_times'),
+                'close_times' => $request->get('close_times')
             ]);
         }
         catch(\Exception $e){
             return response()->json(['status'=>$e->getMessage()]);
         }
-
-        $status = "data berhasil dibuat";
         
-        return response()->json(compact(['food_drinks', 'status']));
+        return response()->json(compact('operational_times'));
 
     }
 
@@ -60,89 +60,90 @@ class FoodDrinksController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $food_drinks = DB::table('food_drinks')
+        $operational_times = DB::table('operational_times')
         ->where('user_id', '=', $user->id)
         ->where('id', '=', $id)
         ->first();
 
-        if(empty($food_drinks)){
+        if(empty($operational_times)){
 
             $status = "data tidak tersedia";
             return response()->json(compact('status'));
         }
 
-        if($request->get('name')==NULL){
+        if($request->get('day')==NULL){
 
-            $name = $food_drinks->name;
+            $day = $operational_times->day;
 
         } else{
 
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255'
+                'day' => 'required|string|max:255'
             ]);
 
             if($validator->fails()){
                 return response()->json(['status' => $validator->errors()->toJson()], 400);
             }
-            $name = $request->get('name');
+            $day = $request->get('day');
 
         }
 
-        if($request->get('description')==NULL){
+        if($request->get('open_times')==NULL){
 
-            $description = $food_drinks->description;
+            $open_times = $operational_times->open_times;
 
         } else{
 
             $validator = Validator::make($request->all(), [
-                'description' => 'required|string|max:255'
+                'open_times' => 'required|string|max:5|min:5'
             ]);
 
             if($validator->fails()){
                 return response()->json(['status' => $validator->errors()->toJson()], 400);
             }
-            $description = $request->get('description');
+            $open_times = $request->get('open_times');
 
         }
 
-        if($request->get('price')==NULL){
+        if($request->get('close_times')==NULL){
 
-            $price = $food_drinks->price;
+            $close_times = $operational_times->close_times;
 
         } else{
 
             $validator = Validator::make($request->all(), [
-                'price' => 'required|string|max:255'
+                'close_times' => 'required|string|max:5|min:5'
             ]);
 
             if($validator->fails()){
                 return response()->json(['status' => $validator->errors()->toJson()], 400);
             }
-            $name = $request->get('price');
+            $close_times = $request->get('close_times');
 
         }
 
-        $food_drinks->update([
-            'name'=>$name,
-            'description'=>$description,
-            'price' => $price
+        $operational_times->update([
+            'day'=>$day,
+            'open_times'=>$open_times,
+            'close_times'=>$close_times
         ]);
 
         $status = "update successfull";
 
-        return response()->json(compact(['food_drinks', 'status']));
+        return response()->json(compact(['operational_times', 'status']));
 
     }
 
     public function destroy($id) {
 
         $user = JWTAuth::parseToken()->authenticate();
-        $food_drinks = DB::table('food_drinks')
+
+        $operational_times = DB::table('operational_times')
         ->where('user_id', '=', $user->id)
         ->where('id', '=', $id)
         ->first();
 
-        if(empty($food_drinks)){
+        if(empty($operational_times)){
 
             $status = "data tidak tersedia";
             return response()->json(compact('status'));
@@ -150,10 +151,9 @@ class FoodDrinksController extends Controller
 
         $status = "delete successfull";
 
-        $food_drinks->delete();
+        $operational_times->delete();
 
-        return response()->json(compact(['food_drinks', 'status']));
+        return response()->json(compact(['operational_times', 'status']));
 
     }
-
 }

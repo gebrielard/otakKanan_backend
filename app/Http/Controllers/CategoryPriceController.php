@@ -3,28 +3,28 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\CommonRegulations;
+use App\Models\CategoryPrice;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use JWTAuth;
 
-class CommonRegulationsController extends Controller
+class CategoryPriceController extends Controller
 {
-
     public function index() {
+
         $user = JWTAuth::parseToken()->authenticate();
 
-        $common_regulations = DB::table('$common_regulations')
+        $category_price = DB::table('$category_price')
         ->where('user_id', '=', $user->id)
         ->get();
 
-        if (empty($common_regulations)) {
+        if (empty($category_price)) {
             $status = "data tidak tersedia";
         }
 
         $status = "data tersedia";
 
-        return response()->json(compact(['common_regulations', 'status']));
+        return response()->json(compact(['category_price', 'status']));
 
     }
 
@@ -38,29 +38,37 @@ class CommonRegulationsController extends Controller
 
         try {
 
-            $common_regulations = CommonRegulations::create([
+            $category_price = CategoryPrice::create([
                 'room_id' => $id,
                 'user_id' => $user->id,
                 'name' => $request->get('name')
             ]);
+
+            $room_category_price = RoomCategoryPrice::create([
+                'room_id' => $id,
+                'user_id' => $user->id,
+                'category_price' => $category_price->id
+            ]);
+
         }
         catch(\Exception $e){
             return response()->json(['status'=>$e->getMessage()]);
         }
         
-        return response()->json(compact('common_regulations'));
+        return response()->json(compact('category_price'));
 
     }
 
     public function update(Request $request, $id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $common_regulations = DB::table('common_regulations')
+
+        $category_price = DB::table('category_price')
         ->where('user_id', '=', $user->id)
         ->where('id', '=', $id)
         ->first();
 
-        if(empty($common_regulations)){
+        if(empty($category_price)){
 
             $status = "data tidak tersedia";
             return response()->json(compact('status'));
@@ -68,7 +76,7 @@ class CommonRegulationsController extends Controller
 
         if($request->get('name')==NULL){
 
-            $name = $common_regulations->name;
+            $name = $category_price->name;
 
         } else{
 
@@ -83,25 +91,26 @@ class CommonRegulationsController extends Controller
 
         }
 
-        $common_regulations->update([
+        $category_price->update([
             'name'=>$name
         ]);
 
         $status = "update successfull";
 
-        return response()->json(compact(['common_regulations', 'status']));
+        return response()->json(compact(['category_price', 'status']));
 
     }
 
     public function destroy($id) {
 
         $user = JWTAuth::parseToken()->authenticate();
-        $common_regulations = DB::table('common_regulations')
+
+        $category_price = DB::table('category_price')
         ->where('user_id', '=', $user->id)
         ->where('id', '=', $id)
         ->first();
 
-        if(empty($common_regulations)){
+        if(empty($category_price)){
 
             $status = "data tidak tersedia";
             return response()->json(compact('status'));
@@ -109,10 +118,9 @@ class CommonRegulationsController extends Controller
 
         $status = "delete successfull";
 
-        $common_regulations->delete();
+        $category_price->delete();
 
-        return response()->json(compact(['common_regulations', 'status']));
+        return response()->json(compact(['category_price', 'status']));
 
     }
-
 }

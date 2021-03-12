@@ -14,7 +14,7 @@ class CreateRoomFunctionsTable extends Migration
     public function up()
     {
         Schema::create('room_functions', function (Blueprint $table) {
-            $table->increments('room_function_id');
+            $table->increments('id');
             $table->integer('room_id');
             $table->integer('user_id');
             $table->string('name');

@@ -15,7 +15,7 @@ class CreateRelation extends Migration
     {
         Schema::table('facilities', function (Blueprint $table) {
             $table->integer('room_id')->unsigned()->change();
-            $table->foreign('room_id')->references('room_id')->on('rooms')
+            $table->foreign('room_id')->references('id')->on('rooms')
                 ->onUpdate('cascade')->onDelete('cascade');
 
             $table->integer('user_id')->unsigned()->change();
@@ -25,7 +25,7 @@ class CreateRelation extends Migration
 
         Schema::table('room_functions', function (Blueprint $table) {
             $table->integer('room_id')->unsigned()->change();
-            $table->foreign('room_id')->references('room_id')->on('rooms')
+            $table->foreign('room_id')->references('id')->on('rooms')
                 ->onUpdate('cascade')->onDelete('cascade');
 
             $table->integer('user_id')->unsigned()->change();
@@ -35,7 +35,7 @@ class CreateRelation extends Migration
 
         Schema::table('room_types', function (Blueprint $table) {
             $table->integer('room_id')->unsigned()->change();
-            $table->foreign('room_id')->references('room_id')->on('rooms')
+            $table->foreign('room_id')->references('id')->on('rooms')
                 ->onUpdate('cascade')->onDelete('cascade');
             
             $table->integer('user_id')->unsigned()->change();
