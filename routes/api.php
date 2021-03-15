@@ -34,9 +34,7 @@ Route::group(['prefix' => 'gallery',  'middleware' => ['jwt.verify']], function(
 // Room Controller
 Route::group(['prefix' => 'room',  'middleware' => ['jwt.verify']], function() {
     Route::get('/read', [RoomController::class, 'index']);
-    Route::post('/create', [RoomController::class, 'store']);
-    Route::post('/update/{id}', [RoomController::class, 'update']);
-    Route::delete('/delete/{id}', [RoomController::class, 'destroy']);
+    Route::post('/show/{id}', [RoomController::class, 'show']);
 });
 
 // Room Function Controller
@@ -93,4 +91,13 @@ Route::group(['prefix' => 'operational-times',  'middleware' => ['jwt.verify']],
     Route::post('/create', [OperationalTimesController::class, 'store']);
     Route::post('/update/{id}', [OperationalTimesController::class, 'update']);
     Route::delete('/delete/{id}', [OperationalTimesController::class, 'destroy']);
+});
+
+// My Office Controller
+Route::group(['prefix' => 'my-office',  'middleware' => ['jwt.verify']], function() {
+    Route::get('/read', [MyOfficeController::class, 'index']);
+    Route::post('/create', [MyOfficeController::class, 'store']);
+    Route::post('/show/{id}', [MyOfficeController::class, 'show']);
+    Route::post('/update/{id}', [MyOfficeController::class, 'update']);
+    Route::delete('/delete/{id}', [MyOfficeController::class, 'destroy']);
 });
