@@ -39,7 +39,6 @@ class CategoryPriceController extends Controller
         try {
 
             $category_price = CategoryPrice::create([
-                'room_id' => $id,
                 'user_id' => $user->id,
                 'name' => $request->get('name')
             ]);
