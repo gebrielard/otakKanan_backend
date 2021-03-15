@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Gallery;
 use Illuminate\Support\Facades\Storage;
+use JWTAuth;
 
 class GalleryController extends Controller
 {
@@ -15,6 +16,8 @@ class GalleryController extends Controller
 
     public function store(Request $request)
     {
+        $user = JWTAuth::parseToken()->authenticate();
+        
         $request->validate([
             'room_id' => 'required'
         ]);
@@ -25,13 +28,14 @@ class GalleryController extends Controller
             ]);
             $file = $request->file('filename');
             $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('otakkanan/', $filename);
+            $file->storeAs('public/', $filename);
         }else{
             $filename= $request->filename;
         }
 
         $gallery = Gallery::create([
             'room_id' => $request->room_id,
+            'user_id' => $user->id,
             'filename' => $filename,
         ]);
 
@@ -55,6 +59,8 @@ class GalleryController extends Controller
 
         if(empty($gallery)){
 
+            return response()->json([ 'message' => "Data Not Found"]); 
+
         } else {
 
             $request->validate([
@@ -71,6 +77,7 @@ class GalleryController extends Controller
                 $filename = time() . '.' . $file->getClientOriginalExtension();
                 $file->storeAs('otakkanan/', $filename);
                 Storage::delete('otakkanan/' . $gallery->filename);
+                return response()->json([ 'message' => "Data Successfully Updated"]);
             }else{
                 $filename=$request->filename;
             }
@@ -90,10 +97,11 @@ class GalleryController extends Controller
         $gallery = Gallery::find($id);
         if(empty($gallery)){
 
-        }else {
+        } else {
             Storage::delete('otakkanan/' . $gallery->filename);
             $gallery->delete();
-            return response()->json($gallery);
+            
+            return response()->json([ 'message' => "Data Successfully Deleted"]);
         }
     }
 }

@@ -49,6 +49,8 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
+            'address' => 'required|string|max:255',
+            'phone_number' => 'required|string|min:5|max:13',
         ]);
 
         if($validator->fails()){
@@ -60,6 +62,8 @@ class UserController extends Controller
             'email' => $request->get('email'),
             'password' => Hash::make($request->get('password')),
             'image'=>'N/A',
+            'address' => $request->get('address'),
+            'phone_number' => $request->get('phone_number'),
             'role'=>'user',
         ]);
 

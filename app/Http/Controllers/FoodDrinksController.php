@@ -7,30 +7,33 @@ use App\Models\FoodDrinks;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use JWTAuth;
+use Validator;
 
 class FoodDrinksController extends Controller
 {
     public function index() {
+        $user = JWTAuth::parseToken()->authenticate();
 
-        $food_drinks = DB::table('$food_drinks')
+        $food_drinks = DB::table('food_drinks')
         ->where('user_id', '=', $user->id)
         ->get();
 
         if (empty($food_drinks)) {
-            $status = "data tidak tersedia";
+            $status = "Data doesn't exist";
         }
 
-        $status = "data tersedia";
+        $status = "Data exist";
 
         return response()->json(compact(['food_drinks', 'status']));
 
     }
 
-    public function store(Request $request, $id) {
+    public function store(Request $request) {
 
         $user = JWTAuth::parseToken()->authenticate();
 
         $this->validate($request,[
+            'room_id' => 'required',
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'price' => 'required'
@@ -39,7 +42,7 @@ class FoodDrinksController extends Controller
         try {
 
             $food_drinks = FoodDrinks::create([
-                'room_id' => $id,
+                'room_id' => $request->get('room_id'),
                 'user_id' => $user->id,
                 'name' => $request->get('name'),
                 'description' => $request->get('description'),
@@ -50,7 +53,7 @@ class FoodDrinksController extends Controller
             return response()->json(['status'=>$e->getMessage()]);
         }
 
-        $status = "data berhasil dibuat";
+        $status = "Data created succesfully";
         
         return response()->json(compact(['food_drinks', 'status']));
 
@@ -58,16 +61,18 @@ class FoodDrinksController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        // $user = JWTAuth::parseToken()->authenticate();
 
-        $food_drinks = DB::table('food_drinks')
-        ->where('user_id', '=', $user->id)
-        ->where('id', '=', $id)
-        ->first();
+        // $food_drinks = DB::table('food_drinks')
+        // ->where('user_id', '=', $user->id)
+        // ->where('id', '=', $id)
+        // ->first();
+
+        $food_drinks = FoodDrinks::find($id);
 
         if(empty($food_drinks)){
 
-            $status = "data tidak tersedia";
+            $status = "Data doesn't exist";
             return response()->json(compact('status'));
         }
 
@@ -118,17 +123,18 @@ class FoodDrinksController extends Controller
             if($validator->fails()){
                 return response()->json(['status' => $validator->errors()->toJson()], 400);
             }
-            $name = $request->get('price');
+            $price = $request->get('price');
 
         }
 
         $food_drinks->update([
-            'name'=>$name,
-            'description'=>$description,
+            'room_id' => $request->room_id,
+            'name' => $name,
+            'description' => $description,
             'price' => $price
         ]);
 
-        $status = "update successfull";
+        $status = "Update successfull";
 
         return response()->json(compact(['food_drinks', 'status']));
 
@@ -136,19 +142,21 @@ class FoodDrinksController extends Controller
 
     public function destroy($id) {
 
-        $user = JWTAuth::parseToken()->authenticate();
-        $food_drinks = DB::table('food_drinks')
-        ->where('user_id', '=', $user->id)
-        ->where('id', '=', $id)
-        ->first();
+        // $user = JWTAuth::parseToken()->authenticate();
+        // $food_drinks = DB::table('food_drinks')
+        // ->where('user_id', '=', $user->id)
+        // ->where('id', '=', $id)
+        // ->first();
+
+        $food_drinks = FoodDrinks::find($id);
 
         if(empty($food_drinks)){
 
-            $status = "data tidak tersedia";
+            $status = "Data doesn't exist";
             return response()->json(compact('status'));
         }
 
-        $status = "delete successfull";
+        $status = "Delete successfull";
 
         $food_drinks->delete();
 
