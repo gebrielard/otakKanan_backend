@@ -24,9 +24,6 @@ class Relasi3 extends Migration
         });
 
         Schema::table('category_price', function (Blueprint $table) {
-            $table->integer('room_id')->unsigned()->change();
-            $table->foreign('room_id')->references('id')->on('rooms')
-                ->onUpdate('cascade')->onDelete('cascade');
 
             $table->integer('user_id')->unsigned()->change();
             $table->foreign('user_id')->references('id')->on('users')
