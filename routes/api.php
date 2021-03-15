@@ -30,32 +30,36 @@ Route::group(['prefix' => 'gallery',  'middleware' => ['jwt.verify']], function(
 });
 
 // Room Controller
-Route::get('/room', [RoomController::class, 'index']);
-Route::get('/room/{id}', [RoomController::class, 'show']);
-Route::post('/room/create', [RoomController::class, 'store']);
-Route::put('/room/{id}', [RoomController::class, 'update']);
-Route::delete('/room/{id}', [RoomController::class, 'destroy']);
+Route::group(['prefix' => 'room',  'middleware' => ['jwt.verify']], function() {
+    Route::get('/read', [RoomController::class, 'index']);
+    Route::post('/create', [RoomController::class, 'store']);
+    Route::post('/update/{id}', [RoomController::class, 'update']);
+    Route::delete('/delete/{id}', [RoomController::class, 'destroy']);
+});
 
 // Room Function Controller
-Route::get('/room/function', [RoomFunctionController::class, 'index']);
-Route::get('/room/function{id}', [RoomFunctionController::class, 'show']);
-Route::post('/room/function/create', [RoomFunctionController::class, 'store']);
-Route::put('/room/function/{id}', [RoomFunctionController::class, 'update']);
-Route::delete('/room/function/{id}', [RoomFunctionController::class, 'destroy']);
+Route::group(['prefix' => 'room-function',  'middleware' => ['jwt.verify']], function() {
+    Route::get('/read', [RoomFunctionController::class, 'index']);
+    Route::post('/create', [RoomFunctionController::class, 'store']);
+    Route::post('/update/{id}', [RoomFunctionController::class, 'update']);
+    Route::delete('/delete/{id}', [RoomFunctionController::class, 'destroy']);
+});
 
 // Room Type Controller
-Route::get('/room/type', [RoomTypeController::class, 'index']);
-Route::get('/room/type/{id}', [RoomTypeController::class, 'show']);
-Route::post('/room/type/create', [RoomTypeController::class, 'store']);
-Route::put('/room/type/{id}', [RoomTypeController::class, 'update']);
-Route::delete('/room/type/{id}', [RoomTypeController::class, 'destroy']);
+Route::group(['prefix' => 'room-type',  'middleware' => ['jwt.verify']], function() {
+    Route::get('/read', [RoomTypeController::class, 'index']);
+    Route::post('/create', [RoomTypeController::class, 'store']);
+    Route::post('/update/{id}', [RoomTypeController::class, 'update']);
+    Route::delete('/delete/{id}', [RoomTypeController::class, 'destroy']);
+});
 
 // Facility Controller
-Route::get('/facility', [FacilityController::class, 'index']);
-Route::get('/facility/{id}', [FacilityController::class, 'show']);
-Route::post('/facility/create', [FacilityController::class, 'store']);
-Route::put('/facility/{id}', [FacilityController::class, 'update']);
-Route::delete('/facility/{id}', [FacilityController::class, 'destroy']);
+Route::group(['prefix' => 'facility',  'middleware' => ['jwt.verify']], function() {
+    Route::get('/read', [FacilityController::class, 'index']);
+    Route::post('/create', [FacilityController::class, 'store']);
+    Route::post('/update/{id}', [FacilityController::class, 'update']);
+    Route::delete('/delete/{id}', [FacilityController::class, 'destroy']);
+});
 
 //Common Regulation Controller
 Route::group(['prefix' => 'common-regulations',  'middleware' => ['jwt.verify']], function() {
