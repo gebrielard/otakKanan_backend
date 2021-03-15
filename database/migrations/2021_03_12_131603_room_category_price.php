@@ -17,7 +17,7 @@ class RoomCategoryPrice extends Migration
             $table->increments('id');
             $table->integer('room_id');
             $table->integer('user_id');
-            $table->string('category_price_id');
+            $table->integer('category_price_id');
             $table->timestamps();
         });
     }
