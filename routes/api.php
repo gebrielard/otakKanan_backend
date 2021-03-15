@@ -9,6 +9,8 @@ use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CommonRegulationsController;
 use App\Http\Controllers\FoodDrinksController;
+use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\OperationalTimesController;
 
 
 // User Controller
@@ -71,24 +73,24 @@ Route::group(['prefix' => 'common-regulations',  'middleware' => ['jwt.verify']]
 
 //foodDrinks Controller
 Route::group(['prefix' => 'food-drinks',  'middleware' => ['jwt.verify']], function() {
-    Route::get('/read', [CommonRegulationsController::class, 'index']);
-    Route::post('/create', [CommonRegulationsController::class, 'store']);
-    Route::post('/update/{id}', [CommonRegulationsController::class, 'update']);
-    Route::delete('/delete/{id}', [CommonRegulationsController::class, 'destroy']);
+    Route::get('/read', [FoodDrinksController::class, 'index']);
+    Route::post('/create', [FoodDrinksController::class, 'store']);
+    Route::post('/update/{id}', [FoodDrinksController::class, 'update']);
+    Route::delete('/delete/{id}', [FoodDrinksController::class, 'destroy']);
 });
 
 //CategoryPrice Controller
 Route::group(['prefix' => 'category-price',  'middleware' => ['jwt.verify']], function() {
-    Route::get('/read', [CommonRegulationsController::class, 'index']);
-    Route::post('/create', [CommonRegulationsController::class, 'store']);
-    Route::post('/update/{id}', [CommonRegulationsController::class, 'update']);
-    Route::delete('/delete/{id}', [CommonRegulationsController::class, 'destroy']);
+    Route::get('/read', [CategoryPriceController::class, 'index']);
+    Route::post('/create', [CategoryPriceController::class, 'store']);
+    Route::post('/update/{id}', [CategoryPriceController::class, 'update']);
+    Route::delete('/delete/{id}', [CategoryPriceController::class, 'destroy']);
 });
 
 //OperationalTimes Controller
 Route::group(['prefix' => 'operational-times',  'middleware' => ['jwt.verify']], function() {
-    Route::get('/read', [CommonRegulationsController::class, 'index']);
-    Route::post('/create', [CommonRegulationsController::class, 'store']);
-    Route::post('/update/{id}', [CommonRegulationsController::class, 'update']);
-    Route::delete('/delete/{id}', [CommonRegulationsController::class, 'destroy']);
+    Route::get('/read', [OperationalTimesController::class, 'index']);
+    Route::post('/create', [OperationalTimesController::class, 'store']);
+    Route::post('/update/{id}', [OperationalTimesController::class, 'update']);
+    Route::delete('/delete/{id}', [OperationalTimesController::class, 'destroy']);
 });

@@ -7,6 +7,7 @@ use App\Models\OperationalTimes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use JWTAuth;
+use Validator;
 
 class OperationalTimesController extends Controller
 {
@@ -14,25 +15,26 @@ class OperationalTimesController extends Controller
 
         $user = JWTAuth::parseToken()->authenticate();
 
-        $operational_times = DB::table('$operational_times')
+        $operational_times = DB::table('operational_times')
         ->where('user_id', '=', $user->id)
         ->get();
 
         if (empty($operational_times)) {
-            $status = "data tidak tersedia";
+            $status = "Data doesn't exist";
         }
 
-        $status = "data tersedia";
+        $status = "Data exist";
 
         return response()->json(compact(['operational_times', 'status']));
 
     }
 
-    public function store(Request $request, $id) {
+    public function store(Request $request) {
 
         $user = JWTAuth::parseToken()->authenticate();
 
         $this->validate($request,[
+            'room_id' => 'required',
             'day' => 'required|string|max:255',
             'open_times' => 'required|string|max:5|min:5',
             'close_times' => 'required|string|max:5|min:5'
@@ -41,9 +43,9 @@ class OperationalTimesController extends Controller
         try {
 
             $operational_times = OperationalTimes::create([
-                'room_id' => $id,
+                'room_id' => $request->get('room_id'),
                 'user_id' => $user->id,
-                'day' => $request->get('name'),
+                'day' => $request->get('day'),
                 'open_times' => $request->get('open_times'),
                 'close_times' => $request->get('close_times')
             ]);
@@ -58,16 +60,18 @@ class OperationalTimesController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        // $user = JWTAuth::parseToken()->authenticate();
 
-        $operational_times = DB::table('operational_times')
-        ->where('user_id', '=', $user->id)
-        ->where('id', '=', $id)
-        ->first();
+        // $operational_times = DB::table('operational_times')
+        // ->where('user_id', '=', $user->id)
+        // ->where('id', '=', $id)
+        // ->first();
+
+        $operational_times = OperationalTimes::find($id);
 
         if(empty($operational_times)){
 
-            $status = "data tidak tersedia";
+            $status = "Data doesn't exist";
             return response()->json(compact('status'));
         }
 
@@ -128,7 +132,7 @@ class OperationalTimesController extends Controller
             'close_times'=>$close_times
         ]);
 
-        $status = "update successfull";
+        $status = "Update successfull";
 
         return response()->json(compact(['operational_times', 'status']));
 
@@ -136,20 +140,22 @@ class OperationalTimesController extends Controller
 
     public function destroy($id) {
 
-        $user = JWTAuth::parseToken()->authenticate();
+        // $user = JWTAuth::parseToken()->authenticate();
+        
+        // $operational_times = DB::table('operational_times')
+        // ->where('user_id', '=', $user->id)
+        // ->where('id', '=', $id)
+        // ->first();
 
-        $operational_times = DB::table('operational_times')
-        ->where('user_id', '=', $user->id)
-        ->where('id', '=', $id)
-        ->first();
+        $operational_times = OperationalTimes::find($id);
 
         if(empty($operational_times)){
 
-            $status = "data tidak tersedia";
+            $status = "Data doesn't exist";
             return response()->json(compact('status'));
         }
 
-        $status = "delete successfull";
+        $status = "Delete successfull";
 
         $operational_times->delete();
 

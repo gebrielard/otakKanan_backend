@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RoomFunction;
 use Illuminate\Http\Request;
+use JWTAuth;
 
 class RoomFunctionController extends Controller
 {
@@ -18,6 +19,8 @@ class RoomFunctionController extends Controller
     
     public function store(Request $request)
     {
+        $user = JWTAuth::parseToken()->authenticate();
+
         $this->validate($request,[
             'room_id' => 'required',
             'name' => 'required'
@@ -25,10 +28,11 @@ class RoomFunctionController extends Controller
 
         $roomFunction = RoomFunction::create([
             'room_id' => $request->get('room_id'),
+            'user_id' => $user->id,
             'name' => $request->get('name')
         ]);
         
-        return response()->json($roomFunction);
+        return response()->json(compact('roomFunction'));
     }
 
     

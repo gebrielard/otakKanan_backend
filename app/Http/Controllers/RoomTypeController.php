@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RoomType;
 use Illuminate\Http\Request;
+use JWTAuth;
 
 class RoomTypeController extends Controller
 {
@@ -18,21 +19,34 @@ class RoomTypeController extends Controller
     
     public function store(Request $request)
     {
+        $user = JWTAuth::parseToken()->authenticate();
+
         $this->validate($request,[
             'room_id' => 'required',
-            'name' => 'required',
-            'capacity' => 'required',
-            'layout' => 'required'
+            'name' => 'required|string',
+            'capacity' => 'required|integer',
         ]);
+
+        if($request->hasFile('layout')) {
+            $request->validate([
+                'filename' => 'required|image|mimes:png,jpeg,jpg'
+            ]);
+            $file = $request->file('filename');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('public/', $filename);
+        }else{
+            $filename= $request->filename;
+        }
 
         $roomType = RoomType::create([
             'room_id' => $request->get('room_id'),
+            'user_id' => $user->id,
             'name' => $request->get('name'),
             'capacity' => $request->get('capacity'),
             'layout' => $request->get('layout')
         ]);
         
-        return response()->json($roomType);
+        return response()->json(compact('roomType'));
     }
 
    
@@ -71,6 +85,20 @@ class RoomTypeController extends Controller
         }
 
         if ($request->get('layout') != null) {
+            if ($request->hasFile('layout')) {
+
+                $request->validate([
+                    'layout' => 'required|image|mimes:png,jpeg,jpg'
+                ]);
+
+                $file = $request->file('layout');
+                $filename = time() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('otakkanan/', $filename);
+                Storage::delete('otakkanan/' . $gallery->filename);
+            } else{
+                $filename=$request->filename;
+            }
+
             $roomType->update([
                 'layout' => $request->get('layout')
             ]);
@@ -83,8 +111,16 @@ class RoomTypeController extends Controller
     {
         $roomType = RoomType::find($id);
 
-        if ($roomType->delete()) {
-            return response()->json([ 'message' => "Data Successfully Deleted"]);
-        }      
+        if(empty($roomType)){
+
+            $status = "Data doesn't exist";
+            return response()->json(compact('status'));
+        }
+
+        $status = "Delete successfull";
+
+        $roomType->delete();
+
+        return response()->json(compact(['roomType', 'status']));  
     }
 }
