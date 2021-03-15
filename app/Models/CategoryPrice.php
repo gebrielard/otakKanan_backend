@@ -11,9 +11,9 @@ class CategoryPrice extends Model
     
     protected $table = 'category_price';
     protected $fillable = [
-        'room_id',
         'user_id',
-        'name'
+        'name',
+        'price'
     ];
     public $timestamps = true;
     
