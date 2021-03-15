@@ -63,7 +63,7 @@ class UserController extends Controller
             'password' => Hash::make($request->get('password')),
             'image'=>'N/A',
             'address' => $request->get('address'),
-            'phone_number' => $request->get('address'),
+            'phone_number' => $request->get('phone_number'),
             'role'=>'user',
         ]);
 
