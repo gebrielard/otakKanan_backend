@@ -14,6 +14,7 @@ class CommonRegulationsController extends Controller
 {
 
     public function index() {
+
         $user = JWTAuth::parseToken()->authenticate();
 
         $common_regulations = DB::table('common_regulations')
@@ -21,12 +22,12 @@ class CommonRegulationsController extends Controller
         ->get();
 
         if (empty($common_regulations)) {
-            $status = "Data doesn't exist";
+            return response()->json([ 'status' => "Data doesn't exist"]); 
         }
 
         $status = "Data exist";
 
-        return response()->json(compact(['common_regulations', 'status']));
+        return response()->json(compact('common_regulations', 'status'));
 
     }
 
@@ -50,25 +51,25 @@ class CommonRegulationsController extends Controller
         catch(\Exception $e){
             return response()->json(['status'=>$e->getMessage()]);
         }
+
+        $status = "Data created successfully";
         
-        return response()->json(compact('common_regulations'));
+        return response()->json(compact('common_regulations', 'status'));
 
     }
 
     public function update(Request $request, $id)
     {
-        // $user = JWTAuth::parseToken()->authenticate();
-        // $common_regulations = DB::table('common_regulations')
-        // ->where('user_id', '=', $user->id)
-        // ->where('id', '=', $id)
-        // ->first();
+        $user = JWTAuth::parseToken()->authenticate();
 
-        $common_regulations = CommonRegulations::find($id);
+        $common_regulations = DB::table('common_regulations')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
 
         if(empty($common_regulations)){
 
-            $status = "Data doesn't exist";
-            return response()->json(compact('status'));
+            return response()->json([ 'status' => "Data doesn't exist"]); 
         }
 
         if($request->get('name')==NULL){
@@ -78,7 +79,6 @@ class CommonRegulationsController extends Controller
         } else{
 
             $validator = Validator::make($request->all(), [
-                'room_id' => 'required',
                 'name' => 'required|string|max:255'
             ]);
 
@@ -90,37 +90,29 @@ class CommonRegulationsController extends Controller
         }
 
         $common_regulations->update([
-            'room_id' => $request->room_id,
             'name' => $name
         ]);
 
-        $status = "Update successfull";
-
-        return response()->json(compact(['common_regulations', 'status']));
-
+        return response()->json([ 'status' => "Update successfully"]); 
     }
 
     public function destroy($id) {
 
-        // $user = JWTAuth::parseToken()->authenticate();
-        // $common_regulations = DB::table('common_regulations')
-        // ->where('user_id', '=', $user->id)
-        // ->where('id', '=', $id)
-        // ->first();
+        $user = JWTAuth::parseToken()->authenticate();
 
-        $common_regulations = CommonRegulations::find($id);
+        $common_regulations = DB::table('common_regulations')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
 
         if(empty($common_regulations)){
 
-            $status = "Data doesn't exist";
-            return response()->json(compact('status'));
+            return response()->json([ 'status' => "Data doesn't exist"]); 
         }
-
-        $status = "Delete successfull";
 
         $common_regulations->delete();
 
-        return response()->json(compact(['common_regulations', 'status']));
+        return response()->json([ 'status' => "Delete successfully"]); 
 
     }
 

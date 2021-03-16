@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Gallery;
 use Illuminate\Support\Facades\Storage;
 use JWTAuth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Validator;
 
 class GalleryController extends Controller
 {
