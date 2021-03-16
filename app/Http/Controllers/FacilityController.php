@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Facility;
 use Illuminate\Http\Request;
 use JWTAuth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class FacilityController extends Controller
 {
@@ -12,9 +15,18 @@ class FacilityController extends Controller
     public function index()
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $facilities = Facility::all();
 
-        return response()->json(compact('facilities'));
+        $facilities = DB::table('facilities')
+        ->where('user_id', '=', $user->id)
+        ->first();
+
+        if (empty($facilities)) {
+            return response()->json([ 'status' => "Data doesn't exist"]); 
+        }
+
+        $status = "Data exist";
+
+        return response()->json(compact('facilities', 'status'));
     }
 
     
@@ -28,23 +40,36 @@ class FacilityController extends Controller
             'status' => 'required'
         ]);
 
-        $facility = Facility::create([
-            'room_id' => $request->get('room_id'),
-            'user_id' => $user->id,
-            'name' => $request->get('name'),
-            'status' => $request->get('status')
-        ]);
+        try{
+            $facility = Facility::create([
+                'room_id' => $request->get('room_id'),
+                'user_id' => $user->id,
+                'name' => $request->get('name'),
+                'status' => $request->get('status')
+            ]);
+
+        }
+        catch(\Exception $e){
+            return response()->json(['status'=>$e->getMessage()]);
+        }
+
+        $status = "Data created successfully";
         
-        return response()->json(compact('facility'));
+        return response()->json(compact('facility', 'status'));
     }
 
     
     public function show($id)
     {
-        $facility = Facility::find($id);
+        $user = JWTAuth::parseToken()->authenticate();
+
+        $facility = DB::table('facilities')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
         
         if (empty($facility)) {
-            return response()->json([ 'message' => "Data Not Found"]); 
+            return response()->json([ 'status' => "Data Not Found"]); 
         } else {
             return response()->json(compact('facility'));
         }
@@ -53,43 +78,81 @@ class FacilityController extends Controller
     
     public function update(Request $request, $id)
     {
-        $facility = Facility::find($id);
+        $user = JWTAuth::parseToken()->authenticate();
+
+        $facility = DB::table('facilities')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
 
         if (empty($facility)) {
             
-            return response()->json([ 'message' => "Data Not Found"]); 
+            return response()->json([ 'status' => "Data doesn't exist"]); 
 
-        } else { 
+        } 
+        
+        if($request->get('name')==NULL){
 
-            if ($request->get('room_id') != null) {
-                $facility->update([
-                    'room_id' => $request->get('room_id')
-                ]);
-            }
-    
-            if ($request->get('name') != null) {
-                $facility->update([
-                    'name' => $request->get('name')
-                ]);
-            }
-    
-            if ($request->get('status') != null) {
-                $facility->update([
-                    'status' => $request->get('status')
-                ]);
-            }
+            $name = $facility->name;
 
-            return response()->json([ 'message' => "Data Successfully Updated"]);  
+        } else{
+
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255'
+            ]);
+
+            if($validator->fails()){
+                return response()->json(['status' => $validator->errors()->toJson()], 400);
+            }
+            $name = $request->get('name');
+
         }
+
+        if($request->get('status')==NULL){
+
+            $status = $facility->status;
+
+        } else{
+
+            $validator = Validator::make($request->all(), [
+                'status' => 'required|string|max:255'
+            ]);
+
+            if($validator->fails()){
+                return response()->json(['status' => $validator->errors()->toJson()], 400);
+            }
+            $status = $request->get('status');
+
+        }
+        
+
+            $facility->update([
+                'name' => $name,
+                'status' => $status
+            ]);
+
+            return response()->json([ 'status' => "Update successfully"]);
+        
     }
 
     
     public function destroy($id)
     {
-        $facility = Facility::find($id);
+        $user = JWTAuth::parseToken()->authenticate();
 
-        if ($facility->delete()) {
-            return response()->json([ 'message' => "Data Successfully Deleted"]);
-        }      
+        $facility = DB::table('facilities')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
+
+        if (empty($facility)) {
+
+            return response()->json([ 'status' => "Data doesn't exist"]);
+        }
+
+        $facility->delete();
+
+        return response()->json([ 'status' => "Data Successfully Deleted"]);
+        
     }
 }

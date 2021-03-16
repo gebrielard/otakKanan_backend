@@ -19,7 +19,7 @@ class FoodDrinksController extends Controller
         ->get();
 
         if (empty($food_drinks)) {
-            $status = "Data doesn't exist";
+            return response()->json([ 'status' => "Data doesn't exist"]); 
         }
 
         $status = "Data exist";
@@ -48,6 +48,7 @@ class FoodDrinksController extends Controller
                 'description' => $request->get('description'),
                 'price' => $request->get('price')
             ]);
+
         }
         catch(\Exception $e){
             return response()->json(['status'=>$e->getMessage()]);
@@ -61,19 +62,16 @@ class FoodDrinksController extends Controller
 
     public function update(Request $request, $id)
     {
-        // $user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate();
 
-        // $food_drinks = DB::table('food_drinks')
-        // ->where('user_id', '=', $user->id)
-        // ->where('id', '=', $id)
-        // ->first();
-
-        $food_drinks = FoodDrinks::find($id);
+        $food_drinks = DB::table('food_drinks')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
 
         if(empty($food_drinks)){
 
-            $status = "Data doesn't exist";
-            return response()->json(compact('status'));
+            return response()->json([ 'status' => "Data doesn't exist"]); 
         }
 
         if($request->get('name')==NULL){
@@ -128,39 +126,33 @@ class FoodDrinksController extends Controller
         }
 
         $food_drinks->update([
-            'room_id' => $request->room_id,
+            'room_id' => $food_drinks->room_id,
             'name' => $name,
             'description' => $description,
             'price' => $price
         ]);
 
-        $status = "Update successfull";
-
-        return response()->json(compact(['food_drinks', 'status']));
+        return response()->json([ 'status' => "Update successfully"]);
 
     }
 
     public function destroy($id) {
 
-        // $user = JWTAuth::parseToken()->authenticate();
-        // $food_drinks = DB::table('food_drinks')
-        // ->where('user_id', '=', $user->id)
-        // ->where('id', '=', $id)
-        // ->first();
+        $user = JWTAuth::parseToken()->authenticate();
 
-        $food_drinks = FoodDrinks::find($id);
+        $food_drinks = DB::table('food_drinks')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
 
         if(empty($food_drinks)){
 
-            $status = "Data doesn't exist";
-            return response()->json(compact('status'));
+            return response()->json([ 'status' => "Data doesn't exist"]);
         }
-
-        $status = "Delete successfull";
 
         $food_drinks->delete();
 
-        return response()->json(compact(['food_drinks', 'status']));
+        return response()->json([ 'status' => "Delete successfully"]);
 
     }
 

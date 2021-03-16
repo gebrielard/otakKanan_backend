@@ -19,12 +19,14 @@ class CategoryPriceController extends Controller
         ->get();
 
         if (empty($category_price)) {
-            $status = "data tidak tersedia";
+
+            return response()->json([ 'status' => "Data doesn't exist"]); 
+
         }
 
-        $status = "data tersedia";
+        $status = "Data exist";
 
-        return response()->json(compact(['category_price', 'status']));
+        return response()->json(compact('category_price', 'status'));
 
     }
 
@@ -53,8 +55,10 @@ class CategoryPriceController extends Controller
         catch(\Exception $e){
             return response()->json(['status'=>$e->getMessage()]);
         }
+
+        $status = "Data created successfully";
         
-        return response()->json(compact('category_price'));
+        return response()->json(compact('category_price', 'status'));
 
     }
 
@@ -69,8 +73,7 @@ class CategoryPriceController extends Controller
 
         if(empty($category_price)){
 
-            $status = "data tidak tersedia";
-            return response()->json(compact('status'));
+            return response()->json([ 'status' => "Data doesn't exist"]); 
         }
 
         if($request->get('name')==NULL){
@@ -94,9 +97,7 @@ class CategoryPriceController extends Controller
             'name'=>$name
         ]);
 
-        $status = "update successfull";
-
-        return response()->json(compact(['category_price', 'status']));
+        return response()->json([ 'status' => "Update Successfully"]); 
 
     }
 
@@ -111,15 +112,12 @@ class CategoryPriceController extends Controller
 
         if(empty($category_price)){
 
-            $status = "data tidak tersedia";
-            return response()->json(compact('status'));
+            return response()->json([ 'status' => "Data doesn't exist"]); 
         }
-
-        $status = "delete successfull";
 
         $category_price->delete();
 
-        return response()->json(compact(['category_price', 'status']));
+        return response()->json([ 'status' => "delete successfully"]);
 
     }
 }
