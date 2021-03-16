@@ -11,21 +11,21 @@ use Validator;
 
 class OperationalTimesController extends Controller
 {
-    public function index() {
-
+    public function index() 
+    {
         $user = JWTAuth::parseToken()->authenticate();
-
         $operational_times = DB::table('operational_times')
         ->where('user_id', '=', $user->id)
         ->get();
 
         if (empty($operational_times)) {
-            $status = "Data doesn't exist";
+
+            return response()->json(['status' => "Data Doesn't exist"]);
         }
 
         $status = "Data exist";
 
-        return response()->json(compact(['operational_times', 'status']));
+        return response()->json(compact('operational_times', 'status'));
 
     }
 
@@ -53,26 +53,23 @@ class OperationalTimesController extends Controller
         catch(\Exception $e){
             return response()->json(['status'=>$e->getMessage()]);
         }
-        
-        return response()->json(compact('operational_times'));
+        $status = "Data created successfully";
+
+        return response()->json(compact('operational_times', 'status'));
 
     }
 
     public function update(Request $request, $id)
     {
-        // $user = JWTAuth::parseToken()->authenticate();
-
-        // $operational_times = DB::table('operational_times')
-        // ->where('user_id', '=', $user->id)
-        // ->where('id', '=', $id)
-        // ->first();
-
-        $operational_times = OperationalTimes::find($id);
+        $user = JWTAuth::parseToken()->authenticate();
+        $operational_times = DB::table('operational_times')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
 
         if(empty($operational_times)){
 
-            $status = "Data doesn't exist";
-            return response()->json(compact('status'));
+            return response()->json(['status' => "Data Doesn't exist"]);
         }
 
         if($request->get('day')==NULL){
@@ -134,32 +131,28 @@ class OperationalTimesController extends Controller
 
         $status = "Update successfull";
 
-        return response()->json(compact(['operational_times', 'status']));
+        return response()->json(compact('operational_times', 'status'));
 
     }
 
-    public function destroy($id) {
-
-        // $user = JWTAuth::parseToken()->authenticate();
+    public function destroy($id) 
+    {
+        $user = JWTAuth::parseToken()->authenticate();
         
-        // $operational_times = DB::table('operational_times')
-        // ->where('user_id', '=', $user->id)
-        // ->where('id', '=', $id)
-        // ->first();
+        $operational_times = DB::table('operational_times')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
 
         $operational_times = OperationalTimes::find($id);
 
         if(empty($operational_times)){
 
-            $status = "Data doesn't exist";
-            return response()->json(compact('status'));
+            return response()->json(['status' => "Data Doesn't exist"]);
         }
-
-        $status = "Delete successfull";
 
         $operational_times->delete();
 
-        return response()->json(compact(['operational_times', 'status']));
-
+        return response()->json(['status' => "Delete successfully"]);
     }
 }

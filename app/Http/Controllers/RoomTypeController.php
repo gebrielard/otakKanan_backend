@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RoomType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use JWTAuth;
 
 class RoomTypeController extends Controller
@@ -11,9 +12,20 @@ class RoomTypeController extends Controller
    
     public function index()
     {
-        $roomTypes = RoomType::all();
+        $user = JWTAuth::parseToken()->authenticate();
+        $roomTypes = DB::table('room_types')
+        ->where('user_id', '=', $user->id)
+        ->get();
 
-        return response()->json(compact('roomTypes'));
+        if(empty($roomTypes)) {
+
+            return response()->json(['status' => "Data Doesn't exist"]);
+        }
+
+        $status = "Data Exist";
+
+        return response()->json(compact('roomTypes', 'status'));
+        
     }
 
     
@@ -46,25 +58,43 @@ class RoomTypeController extends Controller
             'layout' => $request->get('layout')
         ]);
         
-        return response()->json(compact('roomType'));
+        $status = "Data created successfully";
+
+        return response()->json(compact('roomType', 'status'));
     }
 
    
     public function show($id)
     {
-        $roomType = RoomType::find($id);
+        $user = JWTAuth::parseToken()->authenticate();
+        $roomType = DB::table('room_types')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
         
         if (empty($roomType)) {
-            return response()->json([ 'message' => "Data Not Found"]); 
+
+            return response()->json(['status' => "Data Doesn't exist"]);
         } else {
-            return response()->json(compact('roomFunction'));
+
+            $status = "Showed successfully";
+            return response()->json(compact('roomType', 'status'));
         }
     }
 
  
     public function update(Request $request, $id)
     {
-        $roomType = RoomType::find($id);
+        $user = JWTAuth::parseToken()->authenticate();
+        $roomType = DB::table('room_types')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
+
+        if(empty($roomType)){
+
+            return response()->json(['status' => "Data Doesn't exist"]);
+        }
 
         if ($request->get('room_id') != null) {
             $roomType->update([
@@ -104,23 +134,25 @@ class RoomTypeController extends Controller
             ]);
         }
 
-        return response()->json([ 'message' => "Data Successfully Updated"]);  
+        return response()->json(['status' => "Delete successfully"]);
+
     }
 
     public function destroy($id)
     {
-        $roomType = RoomType::find($id);
+        $user = JWTAuth::parseToken()->authenticate();
+        $roomType = DB::table('room_types')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
 
         if(empty($roomType)){
 
-            $status = "Data doesn't exist";
-            return response()->json(compact('status'));
+            return response()->json(['status' => "Data Doesn't exist"]);
         }
-
-        $status = "Delete successfull";
 
         $roomType->delete();
 
-        return response()->json(compact(['roomType', 'status']));  
+        return response()->json(['status' => "Delete successfully"]);
     }
 }
