@@ -144,8 +144,6 @@ class OperationalTimesController extends Controller
         ->where('id', '=', $id)
         ->first();
 
-        $operational_times = OperationalTimes::find($id);
-
         if(empty($operational_times)){
 
             return response()->json(['status' => "Data Doesn't exist"]);

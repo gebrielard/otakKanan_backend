@@ -53,6 +53,7 @@ class RoomFunctionController extends Controller
     public function show($id)
     {
         $user = JWTAuth::parseToken()->authenticate();
+
         $roomFunction = DB::table('room_functions')
         ->where('user_id', '=', $user->id)
         ->where('id', '=', $id)
@@ -72,6 +73,7 @@ class RoomFunctionController extends Controller
     public function update(Request $request, $id)
     {
         $user = JWTAuth::parseToken()->authenticate();
+        
         $roomFunction = DB::table('room_functions')
         ->where('user_id', '=', $user->id)
         ->where('id', '=', $id)
@@ -80,12 +82,6 @@ class RoomFunctionController extends Controller
         if(empty($roomFunction)){
 
             return response()->json(['status' => "Data Doesn't exist"]);
-        }
-
-        if ($request->get('room_id') != null) {
-            $roomFunction->update([
-                'room_id' => $request->get('room_id')
-            ]);
         }
 
         if ($request->get('name') != null) {
@@ -101,6 +97,7 @@ class RoomFunctionController extends Controller
     public function destroy($id)
     {        
         $user = JWTAuth::parseToken()->authenticate();
+        
         $roomFunction = DB::table('room_functions')
         ->where('user_id', '=', $user->id)
         ->where('id', '=', $id)

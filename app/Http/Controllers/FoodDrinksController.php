@@ -24,7 +24,7 @@ class FoodDrinksController extends Controller
 
         $status = "Data exist";
 
-        return response()->json(compact(['food_drinks', 'status']));
+        return response()->json(compact('food_drinks', 'status'));
 
     }
 
@@ -56,7 +56,7 @@ class FoodDrinksController extends Controller
 
         $status = "Data created succesfully";
         
-        return response()->json(compact(['food_drinks', 'status']));
+        return response()->json(compact('food_drinks', 'status'));
 
     }
 
