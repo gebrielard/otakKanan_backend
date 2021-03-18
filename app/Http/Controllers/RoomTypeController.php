@@ -45,9 +45,7 @@ class RoomTypeController extends Controller
             ]);
             $file = $request->file('filename');
             $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/', $filename);
-        }else{
-            $filename= $request->filename;
+            $file->storeAs('otakkanan/', $filename);
         }
 
         $roomType = RoomType::create([
@@ -86,6 +84,7 @@ class RoomTypeController extends Controller
     public function update(Request $request, $id)
     {
         $user = JWTAuth::parseToken()->authenticate();
+
         $roomType = DB::table('room_types')
         ->where('user_id', '=', $user->id)
         ->where('id', '=', $id)
@@ -94,12 +93,6 @@ class RoomTypeController extends Controller
         if(empty($roomType)){
 
             return response()->json(['status' => "Data Doesn't exist"]);
-        }
-
-        if ($request->get('room_id') != null) {
-            $roomType->update([
-                'room_id' => $request->get('room_id')
-            ]);
         }
 
         if ($request->get('name') != null) {
@@ -124,17 +117,16 @@ class RoomTypeController extends Controller
                 $file = $request->file('layout');
                 $filename = time() . '.' . $file->getClientOriginalExtension();
                 $file->storeAs('otakkanan/', $filename);
-                Storage::delete('otakkanan/' . $gallery->filename);
-            } else{
-                $filename=$request->filename;
-            }
+                Storage::delete('otakkanan/' . $roomType->filename);
+            
+            } 
 
             $roomType->update([
                 'layout' => $request->get('layout')
             ]);
         }
 
-        return response()->json(['status' => "Delete successfully"]);
+        return response()->json(['status' => "Update successfully"]);
 
     }
 

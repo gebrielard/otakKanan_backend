@@ -21,10 +21,10 @@ Route::group(['middleware' => 'jwt.verify'], function(){
 });
 
 Route::post('register', [UserController::class, 'register']);
-Route::post('login', [UserController::class, 'login']);
+Route::post('login', [UserController::class, 'login'])->middleware('role.check');
 
 //Galery Controller
-Route::group(['prefix' => 'gallery',  'middleware' => ['jwt.verify']], function() {
+Route::group(['prefix' => 'gallery',  'middleware' => ['jwt.verify','role.check'] ], function() {
     Route::get('/read', [GalleryController::class, 'index']);
     Route::post('/create', [GalleryController::class, 'store']);
     Route::post('/update/{id}', [GalleryController::class, 'update']);
@@ -32,13 +32,13 @@ Route::group(['prefix' => 'gallery',  'middleware' => ['jwt.verify']], function(
 });
 
 // Room Controller
-Route::group(['prefix' => 'room',  'middleware' => ['jwt.verify']], function() {
+Route::group(['prefix' => 'room',  'middleware' => ['jwt.verify','role.check'] ], function() {
     Route::get('/read', [RoomController::class, 'index']);
     Route::post('/show/{id}', [RoomController::class, 'show']);
 });
 
 // Room Function Controller
-Route::group(['prefix' => 'room-function',  'middleware' => ['jwt.verify']], function() {
+Route::group(['prefix' => 'room-function',  'middleware' =>  ['jwt.verify','role.check'] ], function() {
     Route::get('/read', [RoomFunctionController::class, 'index']);
     Route::post('/create', [RoomFunctionController::class, 'store']);
     Route::post('/update/{id}', [RoomFunctionController::class, 'update']);
@@ -46,7 +46,7 @@ Route::group(['prefix' => 'room-function',  'middleware' => ['jwt.verify']], fun
 });
 
 // Room Type Controller
-Route::group(['prefix' => 'room-type',  'middleware' => ['jwt.verify']], function() {
+Route::group(['prefix' => 'room-type',  'middleware' =>  ['jwt.verify','role.check'] ], function() {
     Route::get('/read', [RoomTypeController::class, 'index']);
     Route::post('/create', [RoomTypeController::class, 'store']);
     Route::post('/update/{id}', [RoomTypeController::class, 'update']);
@@ -54,7 +54,7 @@ Route::group(['prefix' => 'room-type',  'middleware' => ['jwt.verify']], functio
 });
 
 // Facility Controller
-Route::group(['prefix' => 'facility',  'middleware' => ['jwt.verify']], function() {
+Route::group(['prefix' => 'facility',  'middleware' =>  ['jwt.verify','role.check']], function() {
     Route::get('/read', [FacilityController::class, 'index']);
     Route::post('/create', [FacilityController::class, 'store']);
     Route::post('/update/{id}', [FacilityController::class, 'update']);
@@ -62,7 +62,7 @@ Route::group(['prefix' => 'facility',  'middleware' => ['jwt.verify']], function
 });
 
 //Common Regulation Controller
-Route::group(['prefix' => 'common-regulations',  'middleware' => ['jwt.verify']], function() {
+Route::group(['prefix' => 'common-regulations',  'middleware' =>  ['jwt.verify','role.check']], function() {
     Route::get('/read', [CommonRegulationsController::class, 'index']);
     Route::post('/create', [CommonRegulationsController::class, 'store']);
     Route::post('/update/{id}', [CommonRegulationsController::class, 'update']);
@@ -70,7 +70,7 @@ Route::group(['prefix' => 'common-regulations',  'middleware' => ['jwt.verify']]
 });
 
 //foodDrinks Controller
-Route::group(['prefix' => 'food-drinks',  'middleware' => ['jwt.verify']], function() {
+Route::group(['prefix' => 'food-drinks',  'middleware' =>  ['jwt.verify','role.check']], function() {
     Route::get('/read', [FoodDrinksController::class, 'index']);
     Route::post('/create', [FoodDrinksController::class, 'store']);
     Route::post('/update/{id}', [FoodDrinksController::class, 'update']);
@@ -78,7 +78,7 @@ Route::group(['prefix' => 'food-drinks',  'middleware' => ['jwt.verify']], funct
 });
 
 //CategoryPrice Controller
-Route::group(['prefix' => 'category-price',  'middleware' => ['jwt.verify']], function() {
+Route::group(['prefix' => 'category-price',  'middleware' =>  ['jwt.verify','role.check']], function() {
     Route::get('/read', [CategoryPriceController::class, 'index']);
     Route::post('/create', [CategoryPriceController::class, 'store']);
     Route::post('/update/{id}', [CategoryPriceController::class, 'update']);
@@ -86,7 +86,7 @@ Route::group(['prefix' => 'category-price',  'middleware' => ['jwt.verify']], fu
 });
 
 //OperationalTimes Controller
-Route::group(['prefix' => 'operational-times',  'middleware' => ['jwt.verify']], function() {
+Route::group(['prefix' => 'operational-times',  'middleware' =>  ['jwt.verify','role.check'] ], function() {
     Route::get('/read', [OperationalTimesController::class, 'index']);
     Route::post('/create', [OperationalTimesController::class, 'store']);
     Route::post('/update/{id}', [OperationalTimesController::class, 'update']);
@@ -94,7 +94,7 @@ Route::group(['prefix' => 'operational-times',  'middleware' => ['jwt.verify']],
 });
 
 // My Office Controller
-Route::group(['prefix' => 'my-office',  'middleware' => ['jwt.verify']], function() {
+Route::group(['prefix' => 'my-office',  'middleware' =>  ['jwt.verify','role.check'] ], function() {
     Route::get('/read', [MyOfficeController::class, 'index']);
     Route::post('/create', [MyOfficeController::class, 'store']);
     Route::post('/show/{id}', [MyOfficeController::class, 'show']);

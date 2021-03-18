@@ -13,8 +13,21 @@ use Validator;
 class GalleryController extends Controller
 {
     public function index(){
-        return Gallery::all();
-        return response()->json(compact('gallery'));
+
+        $user = JWTAuth::parseToken()->authenticate();
+
+        $gallery = DB::table('galleries')
+        ->where('user_id', '=', $user->id)
+        ->get();
+
+        if (empty($gallery)) {
+            return response()->json([ 'status' => "Data doesn't exist"]); 
+        }
+
+        $status = "Data exist";
+
+        return response()->json(compact('gallery', 'status'));
+
     }
 
     public function store(Request $request)
@@ -26,14 +39,19 @@ class GalleryController extends Controller
         ]);
 
         if($request->hasFile('filename')) {
-            $request->validate([
+            
+            $validator = Validator::make($request->all(), [
                 'filename' => 'required|image|mimes:png,jpeg,jpg'
             ]);
+
+            if($validator->fails()){
+                return response()->json(['status' => $validator->errors()->toJson()], 400);
+            }
+
             $file = $request->file('filename');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/', $filename);
-        }else{
-            $filename= $request->filename;
+            $filename = 'otakkanan/' .  time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('otakkanan/', $filename);
+
         }
 
         $gallery = Gallery::create([
@@ -42,33 +60,45 @@ class GalleryController extends Controller
             'filename' => $filename,
         ]);
 
-        return response()->json($gallery);
+        $status = "Data created succesfully";
+
+        return response()->json(compact('gallery', 'status'));
     }
 
     public function show($id)
     {
-        $currentGallery = Gallery::find($id);
-        if(empty($currentGallery)){
+        $user = JWTAuth::parseToken()->authenticate();
 
-        } else {
-            return response()->json(compact('currentGallery'));
-        }
+        $currentGallery = DB::table('galleries')
+        ->where('user_id', '=', $user)
+        ->where('id', '=', $id)
+        ->first();
+
+        if(empty($currentGallery)){
+            return response()->json([ 'status' => "Data doesn't exist"]);
+
+        } 
+
+        $status = 'Data exist';
+
+        return response()->json(compact('currentGallery', 'status'));
 
     }
 
     public function update(Request $request, $id)
     {
-        $gallery = Gallery::find($id);
+        $user = JWTAuth::parseToken()->authenticate();
 
-        if(empty($gallery)){
+        $currentGallery = DB::table('galleries')
+        ->where('user_id', '=', $user)
+        ->where('id', '=', $id)
+        ->first();
 
-            return response()->json([ 'message' => "Data Not Found"]); 
+        if(empty($currentGallery)){
+
+            return response()->json([ 'status' => "Data doesn't exist"]);
 
         } else {
-
-            $request->validate([
-                'room_id' => 'required'
-            ]);
 
             if($request->hasFile('filename')) {
 
@@ -77,34 +107,46 @@ class GalleryController extends Controller
                 ]);
 
                 $file = $request->file('filename');
-                $filename = time() . '.' . $file->getClientOriginalExtension();
+                $filename = 'otakkanan/' . time() . '.' . $file->getClientOriginalExtension();
+                
                 $file->storeAs('otakkanan/', $filename);
-                Storage::delete('otakkanan/' . $gallery->filename);
-                return response()->json([ 'message' => "Data Successfully Updated"]);
-            }else{
-                $filename=$request->filename;
+                
+                Storage::delete($currentGallery->filename);
+
             }
 
-            $gallery->update([
-                'room_id' => $request->room_id,
+            $currentGallery->update([
                 'filename' => $filename,
             ]);
 
-            return response()->json($gallery);
+            $status = "Update Successfully";
+
+            return response()->json(compact('currentGallery', 'status'));
         }
 
     }
 
     public function destroy(Request $request, $id)
     {
-        $gallery = Gallery::find($id);
-        if(empty($gallery)){
+        $user = JWTAuth::parseToken()->authenticate();
 
+        $currentGallery = DB::table('galleries')
+        ->where('user_id', '=', $user)
+        ->where('id', '=', $id)
+        ->first();
+
+        if(empty($currentGallery)){
+        
+            return response()->json([ 'status' => "Data doesn't exist"]);
+        
         } else {
-            Storage::delete('otakkanan/' . $gallery->filename);
-            $gallery->delete();
             
-            return response()->json([ 'message' => "Data Successfully Deleted"]);
+            Storage::delete('otakkanan/' . $currentGallery->filename);
+
+            $currentGallery->delete();
+            
+            return response()->json([ 'status' => "Data Successfully Deleted"]);
+        
         }
     }
 }
