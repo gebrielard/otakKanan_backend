@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Facility;
 use Illuminate\Http\Request;
-use JWTAuth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use JWTAuth;
+use Validator;
 
 class FacilityController extends Controller
 {
@@ -125,13 +126,14 @@ class FacilityController extends Controller
 
         }
         
+        $facility_temp = Facility::find($facility->id);
 
-            $facility->update([
-                'name' => $name,
-                'status' => $status
-            ]);
+        $facility_temp->update([
+            'name' => $name,
+            'status' => $status
+        ]);
 
-            return response()->json([ 'status' => "Update successfully"]);
+        return response()->json([ 'status' => "Update successfully"]);
         
     }
 

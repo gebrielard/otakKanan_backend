@@ -20,7 +20,11 @@ class GalleryController extends Controller
         ->where('user_id', '=', $user->id)
         ->get();
 
-        if (empty($gallery)) {
+        $gallerykw = DB::table('galleries')
+        ->where('user_id', '=', $user->id)
+        ->first();
+
+        if (empty($gallerykw)) {
             return response()->json([ 'status' => "Data doesn't exist"]); 
         }
 

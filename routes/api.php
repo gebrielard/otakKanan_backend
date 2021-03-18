@@ -11,6 +11,7 @@ use App\Http\Controllers\CommonRegulationsController;
 use App\Http\Controllers\FoodDrinksController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\OperationalTimesController;
+use App\Http\Controllers\CategoryPriceController;
 
 
 // User Controller
@@ -21,7 +22,7 @@ Route::group(['middleware' => 'jwt.verify'], function(){
 });
 
 Route::post('register', [UserController::class, 'register']);
-Route::post('login', [UserController::class, 'login'])->middleware('role.check');
+Route::post('login', [UserController::class, 'login']);
 
 //Galery Controller
 Route::group(['prefix' => 'gallery',  'middleware' => ['jwt.verify','role.check'] ], function() {
@@ -34,7 +35,7 @@ Route::group(['prefix' => 'gallery',  'middleware' => ['jwt.verify','role.check'
 // Room Controller
 Route::group(['prefix' => 'room',  'middleware' => ['jwt.verify','role.check'] ], function() {
     Route::get('/read', [RoomController::class, 'index']);
-    Route::post('/show/{id}', [RoomController::class, 'show']);
+    Route::get('/show/{id}', [RoomController::class, 'show']);
 });
 
 // Room Function Controller

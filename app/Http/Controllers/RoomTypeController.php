@@ -95,36 +95,69 @@ class RoomTypeController extends Controller
             return response()->json(['status' => "Data Doesn't exist"]);
         }
 
-        if ($request->get('name') != null) {
-            $roomType->update([
-                'name' => $request->get('name')
+
+        if($request->get('name')==NULL){
+
+            $name = $roomType->name;
+
+        } else{
+
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255'
             ]);
+
+            if($validator->fails()){
+                return response()->json(['status' => $validator->errors()->toJson()], 400);
+            }
+            $name = $request->get('name');
+
         }
+
+        if($request->get('capacity')==NULL){
+
+            $capacity = $roomType->capacity;
+
+        } else{
+
+            $validator = Validator::make($request->all(), [
+                'capacity' => 'required|string|max:255'
+            ]);
+
+            if($validator->fails()){
+                return response()->json(['status' => $validator->errors()->toJson()], 400);
+            }
+            $capacity = $request->get('capacity');
+
+        }
+
+        if($request->get('layout')==NULL){
+
+            $layout = $roomType->layout;
+
+        } else{
+
+            $validator = Validator::make($request->all(), [
+                'layout' => 'required|image|mimes:png,jpeg,jpg'
+            ]);
+
+            if($validator->fails()){
+                return response()->json(['status' => $validator->errors()->toJson()], 400);
+            }
+
+            $file = $request->file('layout');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('otakkanan/', $filename);
+            Storage::delete('otakkanan/' . $roomType->filename);
+
+        }
+
+        $roomType_temp = RoomType::find($roomType->id);
         
-        if ($request->get('capacity') != null) {
-            $roomType->update([
-                'capacity' => $request->get('capacity')
-            ]);
-        }
-
-        if ($request->get('layout') != null) {
-            if ($request->hasFile('layout')) {
-
-                $request->validate([
-                    'layout' => 'required|image|mimes:png,jpeg,jpg'
-                ]);
-
-                $file = $request->file('layout');
-                $filename = time() . '.' . $file->getClientOriginalExtension();
-                $file->storeAs('otakkanan/', $filename);
-                Storage::delete('otakkanan/' . $roomType->filename);
-            
-            } 
-
-            $roomType->update([
-                'layout' => $request->get('layout')
-            ]);
-        }
+        $roomType_temp->update([
+            'name' => $name,
+            'capicity' => $capacity,
+            'layout' => $layout
+        ]);
 
         return response()->json(['status' => "Update successfully"]);
 
