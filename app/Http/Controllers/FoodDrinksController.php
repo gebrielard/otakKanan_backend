@@ -125,8 +125,8 @@ class FoodDrinksController extends Controller
 
         }
 
-        $food_drinks->update([
-            'room_id' => $food_drinks->room_id,
+        $food_drinks_temp = FoodDrinks::find($food_drinks->id);
+        $food_drinks_temp->update([
             'name' => $name,
             'description' => $description,
             'price' => $price

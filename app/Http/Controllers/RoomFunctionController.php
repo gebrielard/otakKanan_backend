@@ -6,6 +6,7 @@ use App\Models\RoomFunction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use JWTAuth;
+use Validator;
 
 class RoomFunctionController extends Controller
 {
@@ -84,11 +85,28 @@ class RoomFunctionController extends Controller
             return response()->json(['status' => "Data Doesn't exist"]);
         }
 
-        if ($request->get('name') != null) {
-            $roomFunction->update([
-                'name' => $request->get('name')
+        if($request->get('name')==NULL){
+
+            $name = $roomFunction->name;
+
+        } else{
+
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255'
             ]);
+
+            if($validator->fails()){
+                return response()->json(['status' => $validator->errors()->toJson()], 400);
+            }
+            $name = $request->get('name');
+
         }
+
+        $roomFunction_temp = RoomFunction::find($roomFunction->id);
+        
+        $roomFunction_temp->update([
+            'name' => $name
+        ]);
         
         return response()->json(['status' => "Update successfully"]);
     }

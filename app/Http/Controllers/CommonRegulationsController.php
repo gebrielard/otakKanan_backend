@@ -88,9 +88,10 @@ class CommonRegulationsController extends Controller
             $name = $request->get('name');
 
         }
-
-        $common_regulations->update([
-            'name' => $name
+        $room_id = $common_regulations->room_id;
+        $common_regulations_temp = CommonRegulations::find($common_regulations->id);
+        $common_regulations_temp->update([
+            'name' => $name,
         ]);
 
         return response()->json([ 'status' => "Update successfully"]); 

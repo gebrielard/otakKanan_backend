@@ -19,11 +19,11 @@ class roleCheck
     {
         if (Auth::user()->role == 'owner') {
             
-            return redirect('api/my-office/read');
+            return $next($request);
 
         } else {
 
-            return redirect('api/room/read');
+            return $next($request);
 
         }
 

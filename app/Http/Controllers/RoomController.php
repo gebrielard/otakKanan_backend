@@ -32,14 +32,14 @@ class RoomController extends Controller
 
     
     public function show($id)
-    {
+    {  
         $room = Room::find($id);
         
         if (empty($room)) {
             return response()->json([ 'status' => "Data Not Found"]); 
         }
 
-        $roomType = DB::table('room_type')
+        $roomType = DB::table('room_types')
         ->where('room_id', 'like', $room->id)
         ->get();
 
@@ -67,12 +67,17 @@ class RoomController extends Controller
         ->where('room_id', 'like', $room->id)
         ->get();
 
-        $category_price = DB::table('category_price')
-        ->where('id', 'like', $room_category_price->category_price_id)
-        ->get();
-
+        $category_price_temp = array();
+        foreach ($room_category_price as $key) {
+            $user_id_temp = $key->user_id;
+            $category_price = DB::table('category_price')
+            ->where('id', 'like', $key->category_price_id)
+            ->first();
+            array_push($category_price_temp, $category_price);
+        }
+        
         $user = DB::table('users')
-        ->where('id', 'like', $room_category_price->user_id)
+        ->where('id', 'like', $user_id_temp)
         ->first();
 
         $detail_room['id'] = $room->id;
@@ -84,53 +89,53 @@ class RoomController extends Controller
         $detail_room['room_type'] = array();
 
         foreach ($roomType as $key) {
-            $temp['name'] = $key->name;
-            $temp['capacity'] = $key->capacity;
-            $temp['layout'] = $key->layout;
-            array_push($detail_room['room_type'], $temp);
+            $room_type_temp['name'] = $key->name;
+            $room_type_temp['capacity'] = $key->capacity;
+            $room_type_temp['layout'] = $key->layout;
+            array_push($detail_room['room_type'], $room_type_temp);
         }
 
         $detail_room['room_function'] = array();
 
         foreach ($roomFunction as $key) {
-            $temp['name'] = $key->name;
-            array_push($detail_room['room_function'], $temp);
+            $room_function_temp['name'] = $key->name;
+            array_push($detail_room['room_function'], $room_function_temp);
         }
 
         $detail_room['gallery'] = array();
 
         foreach ($gallery as $key) {
-            $temp['filename'] = $key->filename;
-            array_push($detail_room['gallery'], $temp);
+            $gallery_temp['filename'] = $key->filename;
+            array_push($detail_room['gallery'], $gallery_temp);
         }
 
         $detail_room['facility'] = array();
 
         foreach ($facility as $key) {
-            $temp['name'] = $key->name;
-            $temp['status'] = $key->status;
-            array_push($detail_room['facility'], $temp);
+            $facility_temp['name'] = $key->name;
+            $facility_temp['status'] = $key->status;
+            array_push($detail_room['facility'], $facility_temp);
         }
 
         $detail_room['common_regulations'] = array();
 
         foreach ($common_regulations as $key) {
-            $temp['name'] = $key->name;
-            array_push($detail_room['common_regulations'], $temp);
+            $common_regulations_temp['name'] = $key->name;
+            array_push($detail_room['common_regulations'], $common_regulations_temp);
         }
 
         $detail_room['operational_times'] = array();
 
         foreach ($operational_times as $key) {
-            $temp['day'] = $key->day;
-            $temp['open_times'] = $key->open_times;
-            $temp['close_times'] = $key->close_times;
-            array_push($detail_room['operational_times'], $temp);
+            $operational_times_temp['day'] = $key->day;
+            $operational_times_temp['open_times'] = $key->open_times;
+            $operational_times_temp['close_times'] = $key->close_times;
+            array_push($detail_room['operational_times'], $operational_times_temp);
         }
 
         $detail_room['category_price'] = array();
 
-        foreach ($category_price as $key) {
+        foreach ($category_price_temp as $key) {
             $temp['id'] = $key->id;
             $temp['name'] = $key->name;
             $temp['price'] = $key->price;

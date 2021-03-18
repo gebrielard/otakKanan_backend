@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\CategoryPrice;
+use App\Models\RoomCategoryPrice;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use JWTAuth;
@@ -14,7 +15,7 @@ class CategoryPriceController extends Controller
 
         $user = JWTAuth::parseToken()->authenticate();
 
-        $category_price = DB::table('$category_price')
+        $category_price = DB::table('category_price')
         ->where('user_id', '=', $user->id)
         ->get();
 
@@ -30,31 +31,34 @@ class CategoryPriceController extends Controller
 
     }
 
-    public function store(Request $request, $id) {
+    public function store(Request $request) {
 
         $user = JWTAuth::parseToken()->authenticate();
 
         $this->validate($request,[
-            'name' => 'required|string|max:255'
+            'room_id' => 'required',
+            'name' => 'required|string|max:255',
+            'price' => 'required'
         ]);
 
-        try {
+        // try {
 
             $category_price = CategoryPrice::create([
                 'user_id' => $user->id,
-                'name' => $request->get('name')
+                'name' => $request->get('name'),
+                'price' => $request->get('price')
             ]);
 
             $room_category_price = RoomCategoryPrice::create([
-                'room_id' => $id,
+                'room_id' => $request->get('room_id'),
                 'user_id' => $user->id,
-                'category_price' => $category_price->id
+                'category_price_id' => $category_price->id
             ]);
 
-        }
-        catch(\Exception $e){
-            return response()->json(['status'=>$e->getMessage()]);
-        }
+        // }
+        // catch(\Exception $e){
+        //     return response()->json(['status'=>$e->getMessage()]);
+        // }
 
         $status = "Data created successfully";
         
