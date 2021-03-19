@@ -4,9 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Auth;
 
-class roleCheck
+class userCheck
 {
     /**
      * Handle an incoming request.
@@ -17,17 +16,14 @@ class roleCheck
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::user()->role == 'owner') {
+        if (Auth::user()->role == 'user') {
             
             return $next($request);
 
         } else {
 
-            return response()->json(['status' => 'You are not owner']);
+            return response()->json(['status' => 'You are not user']);
 
         }
-
-
-
     }
 }

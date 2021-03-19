@@ -12,6 +12,7 @@ use App\Http\Controllers\FoodDrinksController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\OperationalTimesController;
 use App\Http\Controllers\CategoryPriceController;
+use App\Http\Controllers\MyOfficeController;
 
 
 // User Controller
@@ -33,7 +34,7 @@ Route::group(['prefix' => 'gallery',  'middleware' => ['jwt.verify','role.check'
 });
 
 // Room Controller
-Route::group(['prefix' => 'room',  'middleware' => ['jwt.verify','role.check'] ], function() {
+Route::group(['prefix' => 'room',  'middleware' => ['jwt.verify','user.check'] ], function() {
     Route::get('/read', [RoomController::class, 'index']);
     Route::get('/show/{id}', [RoomController::class, 'show']);
 });
