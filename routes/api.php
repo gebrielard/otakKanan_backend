@@ -99,7 +99,7 @@ Route::group(['prefix' => 'operational-times',  'middleware' =>  ['jwt.verify','
 Route::group(['prefix' => 'my-office',  'middleware' =>  ['jwt.verify','role.check'] ], function() {
     Route::get('/read', [MyOfficeController::class, 'index']);
     Route::post('/create', [MyOfficeController::class, 'store']);
-    Route::post('/show/{id}', [MyOfficeController::class, 'show']);
+    Route::get('/show/{id}', [MyOfficeController::class, 'show']);
     Route::post('/update/{id}', [MyOfficeController::class, 'update']);
     Route::delete('/delete/{id}', [MyOfficeController::class, 'destroy']);
 });

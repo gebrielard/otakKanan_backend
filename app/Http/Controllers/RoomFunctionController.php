@@ -14,11 +14,16 @@ class RoomFunctionController extends Controller
     public function index()
     {
         $user = JWTAuth::parseToken()->authenticate();
+
         $roomFunctions = DB::table('room_functions')
         ->where('user_id', '=', $user->id)
         ->get();
 
-        if(empty($roomFunctions)) {
+        $roomFunctions_temp = DB::table('room_functions')
+        ->where('user_id', '=', $user->id)
+        ->first();
+
+        if(empty($roomFunctions_temp)) {
 
             return response()->json(['status' => "Data Doesn't exist"]);
         }
@@ -127,7 +132,8 @@ class RoomFunctionController extends Controller
             return response()->json(['status' => "Data Doesn't exist"]);
         }
 
-        $roomFunction->delete();
+        $roomFunction_temp = RoomFunction::find($roomFunction->id);
+        $roomFunction_temp->delete();
 
         return response()->json(['status' => "Delete successfully"]);
     }

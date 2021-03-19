@@ -17,7 +17,11 @@ class RoomTypeController extends Controller
         ->where('user_id', '=', $user->id)
         ->get();
 
-        if(empty($roomTypes)) {
+        $roomTypes_temp = DB::table('room_types')
+        ->where('user_id', '=', $user->id)
+        ->first();
+
+        if(empty($roomTypes_temp)) {
 
             return response()->json(['status' => "Data Doesn't exist"]);
         }
@@ -40,12 +44,18 @@ class RoomTypeController extends Controller
         ]);
 
         if($request->hasFile('layout')) {
-            $request->validate([
-                'filename' => 'required|image|mimes:png,jpeg,jpg'
+            
+            $validator = Validator::make($request->all(), [
+                'layout' => 'required|image|mimes:png,jpeg,jpg'
             ]);
-            $file = $request->file('filename');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('otakkanan/', $filename);
+
+            if($validator->fails()){
+                return response()->json(['status' => $validator->errors()->toJson()], 400);
+            }
+
+            $file = $request->file('layout');
+            $layout = 'otakkanan/gallery/' . $user->name . '/' .time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('public/', $layout);
         }
 
         $roomType = RoomType::create([
@@ -53,7 +63,7 @@ class RoomTypeController extends Controller
             'user_id' => $user->id,
             'name' => $request->get('name'),
             'capacity' => $request->get('capacity'),
-            'layout' => $request->get('layout')
+            'layout' => $layout
         ]);
         
         $status = "Data created successfully";
@@ -145,9 +155,9 @@ class RoomTypeController extends Controller
             }
 
             $file = $request->file('layout');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('otakkanan/', $filename);
-            Storage::delete('otakkanan/' . $roomType->filename);
+            $layout = 'otakkanan/gallery/' . $user->name .'/'  . time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('public/', $layout);
+            Storage::delete('public/' . $roomType->layout);
 
         }
 
@@ -175,8 +185,10 @@ class RoomTypeController extends Controller
 
             return response()->json(['status' => "Data Doesn't exist"]);
         }
-
-        $roomType->delete();
+        
+        $roomType_temp = RoomType::find($roomType->id);
+        Storage::delete('public/' . $roomType_temp->layout);
+        $roomType_temp->delete();
 
         return response()->json(['status' => "Delete successfully"]);
     }

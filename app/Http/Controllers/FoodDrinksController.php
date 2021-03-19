@@ -18,7 +18,11 @@ class FoodDrinksController extends Controller
         ->where('user_id', '=', $user->id)
         ->get();
 
-        if (empty($food_drinks)) {
+        $food_drinks_temp = DB::table('food_drinks')
+        ->where('user_id', '=', $user->id)
+        ->first();
+
+        if (empty($food_drinks_temp)) {
             return response()->json([ 'status' => "Data doesn't exist"]); 
         }
 
@@ -150,7 +154,8 @@ class FoodDrinksController extends Controller
             return response()->json([ 'status' => "Data doesn't exist"]);
         }
 
-        $food_drinks->delete();
+        $food_drinks_temp = FoodDrinks::find($food_drinks->id);
+        $food_drinks_temp->delete();
 
         return response()->json([ 'status' => "Delete successfully"]);
 
