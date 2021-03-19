@@ -19,7 +19,11 @@ class CategoryPriceController extends Controller
         ->where('user_id', '=', $user->id)
         ->get();
 
-        if (empty($category_price)) {
+        $category_price_temp = DB::table('category_price')
+        ->where('user_id', '=', $user->id)
+        ->first();
+
+        if (empty($category_price_temp)) {
 
             return response()->json([ 'status' => "Data doesn't exist"]); 
 

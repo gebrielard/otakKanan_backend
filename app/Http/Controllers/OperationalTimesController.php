@@ -14,11 +14,16 @@ class OperationalTimesController extends Controller
     public function index() 
     {
         $user = JWTAuth::parseToken()->authenticate();
+
         $operational_times = DB::table('operational_times')
         ->where('user_id', '=', $user->id)
         ->get();
 
-        if (empty($operational_times)) {
+        $operational_times_temp = DB::table('operational_times')
+        ->where('user_id', '=', $user->id)
+        ->get();        
+
+        if (empty($operational_times_temp)) {
 
             return response()->json(['status' => "Data Doesn't exist"]);
         }
@@ -123,15 +128,15 @@ class OperationalTimesController extends Controller
 
         }
 
-        $operational_times->update([
+        $operational_times_temp = OperationalTimes::find($operational_times->id);
+
+        $operational_times_temp->update([
             'day'=>$day,
             'open_times'=>$open_times,
             'close_times'=>$close_times
         ]);
 
-        $status = "Update successfull";
-
-        return response()->json(compact('operational_times', 'status'));
+        return response()->json(['status' => "Update successfully"]);
 
     }
 
@@ -149,7 +154,9 @@ class OperationalTimesController extends Controller
             return response()->json(['status' => "Data Doesn't exist"]);
         }
 
-        $operational_times->delete();
+        $operational_times_temp = OperationalTimes::find($operational_times->id);
+
+        $operational_times_temp->delete();
 
         return response()->json(['status' => "Delete successfully"]);
     }

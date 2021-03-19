@@ -19,9 +19,13 @@ class FacilityController extends Controller
 
         $facilities = DB::table('facilities')
         ->where('user_id', '=', $user->id)
+        ->get();
+
+        $facilities_temp = DB::table('facilities')
+        ->where('user_id', '=', $user->id)
         ->first();
 
-        if (empty($facilities)) {
+        if (empty($facilities_temp)) {
             return response()->json([ 'status' => "Data doesn't exist"]); 
         }
 

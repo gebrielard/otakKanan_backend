@@ -21,7 +21,11 @@ class CommonRegulationsController extends Controller
         ->where('user_id', '=', $user->id)
         ->get();
 
-        if (empty($common_regulations)) {
+        $common_regulations_temp = DB::table('common_regulations')
+        ->where('user_id', '=', $user->id)
+        ->first();
+
+        if (empty($common_regulations_temp)) {
             return response()->json([ 'status' => "Data doesn't exist"]); 
         }
 

@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Gallery;
 use Illuminate\Support\Facades\Storage;
-use JWTAuth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use JWTAuth;
 use Validator;
+
 
 class GalleryController extends Controller
 {
@@ -20,11 +21,11 @@ class GalleryController extends Controller
         ->where('user_id', '=', $user->id)
         ->get();
 
-        $gallerykw = DB::table('galleries')
+        $gallery_temp = DB::table('galleries')
         ->where('user_id', '=', $user->id)
         ->first();
 
-        if (empty($gallerykw)) {
+        if (empty($gallery_temp)) {
             return response()->json([ 'status' => "Data doesn't exist"]); 
         }
 
@@ -53,8 +54,8 @@ class GalleryController extends Controller
             }
 
             $file = $request->file('filename');
-            $filename = 'otakkanan/' .  time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('otakkanan/', $filename);
+            $filename = 'otakkanan/gallery/' . $user->name . '/' . time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('public/', $filename);
 
         }
 
@@ -94,7 +95,7 @@ class GalleryController extends Controller
         $user = JWTAuth::parseToken()->authenticate();
 
         $currentGallery = DB::table('galleries')
-        ->where('user_id', '=', $user)
+        ->where('user_id', '=', $user->id)
         ->where('id', '=', $id)
         ->first();
 
@@ -102,31 +103,36 @@ class GalleryController extends Controller
 
             return response()->json([ 'status' => "Data doesn't exist"]);
 
-        } else {
+        } 
 
-            if($request->hasFile('filename')) {
+        if($request->hasFile('filename')==NULL){
+            
+            $filename = $currentGallery->filename;
 
-                $request->validate([
-                    'filename' => 'required|image|mimes:png,jpeg,jpg'
-                ]);
+        } else{
 
-                $file = $request->file('filename');
-                $filename = 'otakkanan/' . time() . '.' . $file->getClientOriginalExtension();
-                
-                $file->storeAs('otakkanan/', $filename);
-                
-                Storage::delete($currentGallery->filename);
-
-            }
-
-            $currentGallery->update([
-                'filename' => $filename,
+            $validator = Validator::make($request->all(), [
+                'filename' => 'required|image|mimes:png,jpeg,jpg'
             ]);
 
-            $status = "Update Successfully";
+            if($validator->fails()){
+                return response()->json(['status' => $validator->errors()->toJson()], 400);
+            }
 
-            return response()->json(compact('currentGallery', 'status'));
+            $file = $request->file('filename');
+            $filename = 'otakkanan/gallery/' . $user->name .'/'  . time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('public/', $filename);
+            Storage::delete('public/' . $currentGallery->filename);
+
         }
+
+        $currentGallery_temp = Gallery::find($currentGallery->id);
+        
+        $currentGallery_temp->update([
+            'filename' => $filename
+        ]);
+
+        return response()->json(['status' => "Update successfully"]);
 
     }
 
@@ -135,7 +141,7 @@ class GalleryController extends Controller
         $user = JWTAuth::parseToken()->authenticate();
 
         $currentGallery = DB::table('galleries')
-        ->where('user_id', '=', $user)
+        ->where('user_id', '=', $user->id)
         ->where('id', '=', $id)
         ->first();
 
@@ -145,9 +151,10 @@ class GalleryController extends Controller
         
         } else {
             
-            Storage::delete('otakkanan/' . $currentGallery->filename);
+            Storage::delete('public/' . $currentGallery->filename);
 
-            $currentGallery->delete();
+            $currentGallery_temp = Gallery::find($currentGallery->id);
+            $currentGallery_temp->delete();
             
             return response()->json([ 'status' => "Data Successfully Deleted"]);
         

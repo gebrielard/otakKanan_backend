@@ -26,39 +26,36 @@ class MyOfficeController extends Controller
     public function index() {
         $user = JWTAuth::parseToken()->authenticate();
         
-        $my_office = DB::table('my_office')
+        $rooms = DB::table('my_office')
         ->where('user_id', 'like', $user->id)
         ->get();
 
-        $rooms = array();
+        $my_office = array();
 
-        foreach ($my_office as $key) {
+        foreach ($rooms as $key) {
             $temp = Room::find($key->room_id);
 
-            array_push($room, $temp);
+            array_push($my_office, $temp);
         }
 
-        return response()->json(compact('rooms')); 
+        return response()->json(compact('my_office')); 
 
     }
 
     public function show($id)
-    {
-
+    {  
         $user = JWTAuth::parseToken()->authenticate();
-
-        $my_office = DB::table('my_office')
-        ->where('user_id', 'like', $user->id)
-        ->where('room_id', '=', $id)
-        ->first();
         
-        $room = Room::find($my_office->room_id);
+        $room = DB::table('rooms')
+        ->where('user_id', 'like', $user->id)
+        ->where('id', '=', $id)
+        ->first();
         
         if (empty($room)) {
             return response()->json([ 'status' => "Data Not Found"]); 
         }
 
-        $roomType = DB::table('room_type')
+        $roomType = DB::table('room_types')
         ->where('room_id', 'like', $room->id)
         ->get();
 
@@ -86,12 +83,17 @@ class MyOfficeController extends Controller
         ->where('room_id', 'like', $room->id)
         ->get();
 
-        $category_price = DB::table('category_price')
-        ->where('id', 'like', $room_category_price->category_price_id)
-        ->get();
-
+        $category_price_temp = array();
+        foreach ($room_category_price as $key) {
+            $user_id_temp = $key->user_id;
+            $category_price = DB::table('category_price')
+            ->where('id', 'like', $key->category_price_id)
+            ->first();
+            array_push($category_price_temp, $category_price);
+        }
+        
         $user = DB::table('users')
-        ->where('id', 'like', $room_category_price->user_id)
+        ->where('id', 'like', $user_id_temp)
         ->first();
 
         $detail_room['id'] = $room->id;
@@ -103,59 +105,53 @@ class MyOfficeController extends Controller
         $detail_room['room_type'] = array();
 
         foreach ($roomType as $key) {
-            $temp['id'] =$key->id;
-            $temp['name'] = $key->name;
-            $temp['capacity'] = $key->capacity;
-            $temp['layout'] = $key->layout;
-            array_push($detail_room['room_type'], $temp);
+            $room_type_temp['name'] = $key->name;
+            $room_type_temp['capacity'] = $key->capacity;
+            $room_type_temp['layout'] = $key->layout;
+            array_push($detail_room['room_type'], $room_type_temp);
         }
 
         $detail_room['room_function'] = array();
 
         foreach ($roomFunction as $key) {
-            $temp['id'] =$key->id;
-            $temp['name'] = $key->name;
-            array_push($detail_room['room_function'], $temp);
+            $room_function_temp['name'] = $key->name;
+            array_push($detail_room['room_function'], $room_function_temp);
         }
 
         $detail_room['gallery'] = array();
 
         foreach ($gallery as $key) {
-            $temp['id'] =$key->id;
-            $temp['filename'] = $key->filename;
-            array_push($detail_room['gallery'], $temp);
+            $gallery_temp['filename'] = $key->filename;
+            array_push($detail_room['gallery'], $gallery_temp);
         }
 
         $detail_room['facility'] = array();
 
         foreach ($facility as $key) {
-            $temp['id'] =$key->id;
-            $temp['name'] = $key->name;
-            $temp['status'] = $key->status;
-            array_push($detail_room['facility'], $temp);
+            $facility_temp['name'] = $key->name;
+            $facility_temp['status'] = $key->status;
+            array_push($detail_room['facility'], $facility_temp);
         }
 
         $detail_room['common_regulations'] = array();
 
         foreach ($common_regulations as $key) {
-            $temp['id'] =$key->id;
-            $temp['name'] = $key->name;
-            array_push($detail_room['common_regulations'], $temp);
+            $common_regulations_temp['name'] = $key->name;
+            array_push($detail_room['common_regulations'], $common_regulations_temp);
         }
 
         $detail_room['operational_times'] = array();
 
         foreach ($operational_times as $key) {
-            $temp['id'] =$key->id;
-            $temp['day'] = $key->day;
-            $temp['open_times'] = $key->open_times;
-            $temp['close_times'] = $key->close_times;
-            array_push($detail_room['operational_times'], $temp);
+            $operational_times_temp['day'] = $key->day;
+            $operational_times_temp['open_times'] = $key->open_times;
+            $operational_times_temp['close_times'] = $key->close_times;
+            array_push($detail_room['operational_times'], $operational_times_temp);
         }
 
         $detail_room['category_price'] = array();
 
-        foreach ($category_price as $key) {
+        foreach ($category_price_temp as $key) {
             $temp['id'] = $key->id;
             $temp['name'] = $key->name;
             $temp['price'] = $key->price;
@@ -196,8 +192,7 @@ class MyOfficeController extends Controller
         if($validator->fails()){
             return response()->json(['status' => $validator->errors()->toJson()], 400);
         }
-
-        try {
+        
             $room = Room::create([
                 'user_id' => $user->id,
                 'name' => $request->get('name'),
@@ -206,105 +201,95 @@ class MyOfficeController extends Controller
                 'latitude' => $request->get('latitude'),
                 'longitude' => $request->get('longitude'),
             ]);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => $th]);
-        }
         
+            if($request->hasFile('layout')) {
 
-        try {
+                $validator = Validator::make($request->all(), [
+                    'layout' => 'required|image|mimes:png,jpeg,jpg'
+                ]);
+    
+                if($validator->fails()){
+                    return response()->json(['status' => $validator->errors()->toJson()], 400);
+                }
+
+                $file = $request->file('layout');
+                $layout = 'otakkanan/gallery/' . $user->name . '/' .time() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('public/', $layout);
+            }
+        
             $roomType = RoomType::create([
                 'room_id' => $room->id,
                 'user_id' => $user->id,
                 'name' => $request->get('room_type_name'),
                 'capacity' => $request->get('capacity'),
-                'layout' => $request->get('layout')
+                'layout' => $layout
             ]);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => $th]);
-        }
-
-        try {
+        
             $roomFunction = RoomFunction::create([
                 'room_id' => $room->id,
                 'user_id' => $user->id,
                 'name' => $request->get('room_function_name')
             ]);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => $th]);
-        }
-
-        try {
+        
+            if($request->hasFile('filename')) {
+            
+                $validator = Validator::make($request->all(), [
+                    'filename' => 'required|image|mimes:png,jpeg,jpg'
+                ]);
+    
+                if($validator->fails()){
+                    return response()->json(['status' => $validator->errors()->toJson()], 400);
+                }
+    
+                $file = $request->file('filename');
+                $filename = 'otakkanan/gallery/' . $user->name . '/' . time() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('public/', $filename);
+    
+            }
+        
             $gallery = Gallery::create([
                 'room_id' => $room->id,
                 'user_id' => $user->id,
-                'filename' => $request->get('filename')
+                'filename' => $filename
             ]);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => $th]);
-        }
-
-        try{
+        
             $facility = Facility::create([
                 'room_id' => $room->id,
                 'user_id' => $user->id,
                 'name' => $request->get('facility_name'),
                 'status' => $request->get('facility_status')
             ]);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => $th]);
-        }
-
-        try {
+        
             $common_regulations = CommonRegulations::create([
-                'room_id' => $id,
+                'room_id' => $room->id,
                 'user_id' => $user->id,
                 'name' => $request->get('regulation_name')
             ]);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => $th]);
-        }
-
-        try {
+       
             $operational_times = OperationalTimes::create([
-                'room_id' => $id,
+                'room_id' => $room->id,
                 'user_id' => $user->id,
                 'day' => $request->get('day'),
                 'open_times' => $request->get('open_times'),
                 'close_times' => $request->get('close_times')
             ]);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => $th]);
-        }
-
-        try {
+        
             $category_price = CategoryPrice::create([
                 'user_id' => $user->id,
                 'name' => $request->get('category_price_name'),
                 'price' => $request->get('price')
             ]);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => $th]);
-        }
-
-        try {
+        
             $room_category_price = RoomCategoryPrice::create([
-                'room_id' => $id,
+                'room_id' => $room->id,
                 'user_id' => $user->id,
-                'category_price' => $category_price->id
+                'category_price_id' => $category_price->id
             ]);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => $th]);
-        }
-
-        try {
+        
             $my_office = MyOffice::create([
                 'room_id' => $room->id,
                 'user_id' => $user->id
             ]);
-        } catch (\Throwable $th) {
-            return response()->json(['status' => $th]);
-        }
-
 
         
         return response()->json(compact('room', 'roomType', 'roomFunction', 'gallery', 'facility', 'common_regulations', 'operational_times', 'category_price', 'room_category_price', 'my_office'));
