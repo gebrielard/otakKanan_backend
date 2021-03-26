@@ -5,18 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Room extends Model
+class CategoryPrice extends Model
 {
     use HasFactory;
-
-    protected $table = 'rooms';
+    
+    protected $table = 'category_price';
     protected $fillable = [
         'user_id',
         'name',
-        'description',
-        'address',
-        'latitude',
-        'longitude'
+        'price'
     ];
     public $timestamps = true;
+    
 }

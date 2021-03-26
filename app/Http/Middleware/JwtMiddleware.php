@@ -4,8 +4,11 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use JWTAuth;
+use Exception;
+use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 
-class JwtMiddleware
+class JwtMiddleware extends BaseMiddleware
 {
     
     public function handle($request, Closure $next)

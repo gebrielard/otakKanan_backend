@@ -5,95 +5,159 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Gallery;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use JWTAuth;
+use Validator;
+
 
 class GalleryController extends Controller
 {
     public function index(){
-        return Gallery::all();
-        return response()->json(compact('gallery'));
+
+        $user = JWTAuth::parseToken()->authenticate();
+
+        $gallery = DB::table('galleries')
+        ->where('user_id', '=', $user->id)
+        ->get();
+
+        $gallery_temp = DB::table('galleries')
+        ->where('user_id', '=', $user->id)
+        ->first();
+
+        if (empty($gallery_temp)) {
+            return response()->json([ 'status' => "Data doesn't exist"]); 
+        }
+
+        $status = "Data exist";
+
+        return response()->json(compact('gallery', 'status'));
+
     }
 
     public function store(Request $request)
     {
+        $user = JWTAuth::parseToken()->authenticate();
+        
         $request->validate([
             'room_id' => 'required'
         ]);
 
         if($request->hasFile('filename')) {
-            $request->validate([
+            
+            $validator = Validator::make($request->all(), [
                 'filename' => 'required|image|mimes:png,jpeg,jpg'
             ]);
+
+            if($validator->fails()){
+                return response()->json(['status' => $validator->errors()->toJson()], 400);
+            }
+
             $file = $request->file('filename');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('otakkanan/', $filename);
-        }else{
-            $filename= $request->filename;
+            $filename = 'otakkanan/gallery/' . $user->name . '/' . time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('public/', $filename);
+
         }
 
         $gallery = Gallery::create([
             'room_id' => $request->room_id,
+            'user_id' => $user->id,
             'filename' => $filename,
         ]);
 
-        return response()->json($gallery);
+        $status = "Data created succesfully";
+
+        return response()->json(compact('gallery', 'status'));
     }
 
     public function show($id)
     {
-        $currentGallery = Gallery::find($id);
-        if(empty($currentGallery)){
+        $user = JWTAuth::parseToken()->authenticate();
 
-        } else {
-            return response()->json(compact('currentGallery'));
-        }
+        $currentGallery = DB::table('galleries')
+        ->where('user_id', '=', $user)
+        ->where('id', '=', $id)
+        ->first();
+
+        if(empty($currentGallery)){
+            return response()->json([ 'status' => "Data doesn't exist"]);
+
+        } 
+
+        $status = 'Data exist';
+
+        return response()->json(compact('currentGallery', 'status'));
 
     }
 
     public function update(Request $request, $id)
     {
-        $gallery = Gallery::find($id);
+        $user = JWTAuth::parseToken()->authenticate();
 
-        if(empty($gallery)){
+        $currentGallery = DB::table('galleries')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
 
-        } else {
+        if(empty($currentGallery)){
 
-            $request->validate([
-                'room_id' => 'required'
+            return response()->json([ 'status' => "Data doesn't exist"]);
+
+        } 
+
+        if($request->hasFile('filename')==NULL){
+            
+            $filename = $currentGallery->filename;
+
+        } else{
+
+            $validator = Validator::make($request->all(), [
+                'filename' => 'required|image|mimes:png,jpeg,jpg'
             ]);
 
-            if($request->hasFile('filename')) {
-
-                $request->validate([
-                    'filename' => 'required|image|mimes:png,jpeg,jpg'
-                ]);
-
-                $file = $request->file('filename');
-                $filename = time() . '.' . $file->getClientOriginalExtension();
-                $file->storeAs('otakkanan/', $filename);
-                Storage::delete('otakkanan/' . $gallery->filename);
-            }else{
-                $filename=$request->filename;
+            if($validator->fails()){
+                return response()->json(['status' => $validator->errors()->toJson()], 400);
             }
 
-            $gallery->update([
-                'room_id' => $request->room_id,
-                'filename' => $filename,
-            ]);
+            $file = $request->file('filename');
+            $filename = 'otakkanan/gallery/' . $user->name .'/'  . time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('public/', $filename);
+            Storage::delete('public/' . $currentGallery->filename);
 
-            return response()->json($gallery);
         }
+
+        $currentGallery_temp = Gallery::find($currentGallery->id);
+        
+        $currentGallery_temp->update([
+            'filename' => $filename
+        ]);
+
+        return response()->json(['status' => "Update successfully"]);
 
     }
 
     public function destroy(Request $request, $id)
     {
-        $gallery = Gallery::find($id);
-        if(empty($gallery)){
+        $user = JWTAuth::parseToken()->authenticate();
 
-        }else {
-            Storage::delete('otakkanan/' . $gallery->filename);
-            $gallery->delete();
-            return response()->json($gallery);
+        $currentGallery = DB::table('galleries')
+        ->where('user_id', '=', $user->id)
+        ->where('id', '=', $id)
+        ->first();
+
+        if(empty($currentGallery)){
+        
+            return response()->json([ 'status' => "Data doesn't exist"]);
+        
+        } else {
+            
+            Storage::delete('public/' . $currentGallery->filename);
+
+            $currentGallery_temp = Gallery::find($currentGallery->id);
+            $currentGallery_temp->delete();
+            
+            return response()->json([ 'status' => "Data Successfully Deleted"]);
+        
         }
     }
 }

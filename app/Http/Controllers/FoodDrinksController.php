@@ -2,55 +2,55 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Facility;
 use Illuminate\Http\Request;
+use App\Models\FoodDrinks;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Tymon\JWTAuth\Exceptions\JWTException;
 use JWTAuth;
 use Validator;
 
-class FacilityController extends Controller
+class FoodDrinksController extends Controller
 {
-    
-    public function index()
-    {
+    public function index() {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $facilities = DB::table('facilities')
+        $food_drinks = DB::table('food_drinks')
         ->where('user_id', '=', $user->id)
         ->get();
 
-        $facilities_temp = DB::table('facilities')
+        $food_drinks_temp = DB::table('food_drinks')
         ->where('user_id', '=', $user->id)
         ->first();
 
-        if (empty($facilities_temp)) {
+        if (empty($food_drinks_temp)) {
             return response()->json([ 'status' => "Data doesn't exist"]); 
         }
 
         $status = "Data exist";
 
-        return response()->json(compact('facilities', 'status'));
+        return response()->json(compact('food_drinks', 'status'));
+
     }
 
-    
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
+
         $user = JWTAuth::parseToken()->authenticate();
 
         $this->validate($request,[
             'room_id' => 'required',
-            'name' => 'required',
-            'status' => 'required'
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+            'price' => 'required'
         ]);
 
-        try{
-            $facility = Facility::create([
+        try {
+
+            $food_drinks = FoodDrinks::create([
                 'room_id' => $request->get('room_id'),
                 'user_id' => $user->id,
                 'name' => $request->get('name'),
-                'status' => $request->get('status')
+                'description' => $request->get('description'),
+                'price' => $request->get('price')
             ]);
 
         }
@@ -58,47 +58,29 @@ class FacilityController extends Controller
             return response()->json(['status'=>$e->getMessage()]);
         }
 
-        $status = "Data created successfully";
+        $status = "Data created succesfully";
         
-        return response()->json(compact('facility', 'status'));
+        return response()->json(compact('food_drinks', 'status'));
+
     }
 
-    
-    public function show($id)
-    {
-        $user = JWTAuth::parseToken()->authenticate();
-
-        $facility = DB::table('facilities')
-        ->where('user_id', '=', $user->id)
-        ->where('id', '=', $id)
-        ->first();
-        
-        if (empty($facility)) {
-            return response()->json([ 'status' => "Data Not Found"]); 
-        } else {
-            return response()->json(compact('facility'));
-        }
-    }
-
-    
     public function update(Request $request, $id)
     {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $facility = DB::table('facilities')
+        $food_drinks = DB::table('food_drinks')
         ->where('user_id', '=', $user->id)
         ->where('id', '=', $id)
         ->first();
 
-        if (empty($facility)) {
-            
-            return response()->json([ 'status' => "Data doesn't exist"]); 
+        if(empty($food_drinks)){
 
-        } 
-        
+            return response()->json([ 'status' => "Data doesn't exist"]); 
+        }
+
         if($request->get('name')==NULL){
 
-            $name = $facility->name;
+            $name = $food_drinks->name;
 
         } else{
 
@@ -113,52 +95,70 @@ class FacilityController extends Controller
 
         }
 
-        if($request->get('status')==NULL){
+        if($request->get('description')==NULL){
 
-            $status = $facility->status;
+            $description = $food_drinks->description;
 
         } else{
 
             $validator = Validator::make($request->all(), [
-                'status' => 'required|string|max:255'
+                'description' => 'required|string|max:255'
             ]);
 
             if($validator->fails()){
                 return response()->json(['status' => $validator->errors()->toJson()], 400);
             }
-            $status = $request->get('status');
+            $description = $request->get('description');
 
         }
-        
-        $facility_temp = Facility::find($facility->id);
 
-        $facility_temp->update([
+        if($request->get('price')==NULL){
+
+            $price = $food_drinks->price;
+
+        } else{
+
+            $validator = Validator::make($request->all(), [
+                'price' => 'required|string|max:255'
+            ]);
+
+            if($validator->fails()){
+                return response()->json(['status' => $validator->errors()->toJson()], 400);
+            }
+            $price = $request->get('price');
+
+        }
+
+        $food_drinks_temp = FoodDrinks::find($food_drinks->id);
+        $food_drinks_temp->update([
             'name' => $name,
-            'status' => $status
+            'description' => $description,
+            'price' => $price
         ]);
 
         return response()->json([ 'status' => "Update successfully"]);
-        
+
     }
 
-    
-    public function destroy($id)
-    {
+    public function destroy($id) {
+
         $user = JWTAuth::parseToken()->authenticate();
 
-        $facility = DB::table('facilities')
+        $food_drinks = DB::table('food_drinks')
         ->where('user_id', '=', $user->id)
         ->where('id', '=', $id)
         ->first();
 
-        if (empty($facility)) {
+        if(empty($food_drinks)){
 
             return response()->json([ 'status' => "Data doesn't exist"]);
         }
 
-        $facility->delete();
+        $food_drinks_temp = FoodDrinks::find($food_drinks->id);
+        $food_drinks_temp->delete();
 
-        return response()->json([ 'status' => "Data Successfully Deleted"]);
-        
+        return response()->json([ 'status' => "Delete successfully"]);
+
     }
+
 }

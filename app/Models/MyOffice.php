@@ -5,18 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Room extends Model
+class MyOffice extends Model
 {
     use HasFactory;
-
-    protected $table = 'rooms';
+    
+    protected $table = 'my_office';
     protected $fillable = [
         'user_id',
-        'name',
-        'description',
-        'address',
-        'latitude',
-        'longitude'
+        'room_id'
     ];
     public $timestamps = true;
 }

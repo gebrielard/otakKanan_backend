@@ -9,10 +9,10 @@ class RoomFunction extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'room_function_id';
     protected $table = 'room_functions';
     protected $fillable = [
         'room_id',
+        'user_id',
         'name'
     ];
     public $timestamps = true;

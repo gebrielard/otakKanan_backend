@@ -9,10 +9,10 @@ class Facility extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'facility_id';
     protected $table = 'facilities';
     protected $fillable = [
         'room_id',
+        'user_id',
         'name',
         'status'
     ];
